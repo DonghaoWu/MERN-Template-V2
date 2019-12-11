@@ -1,45 +1,30 @@
 {
-  "name": "rawdemo",
+  "name": "mern-template-v2",
   "version": "1.0.0",
-  "description": "This is a raw Demo to create a MERN stack.",
+  "description": "V2",
   "main": "server.js",
   "scripts": {
-    "start": "node server",
-    "server": "nodemon server",
-    "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "start": "NODE_ENV = production node server.js",
+    "dev": "nodemon server"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DonghaoWu/MERN-Template-V1.git"
+    "url": "git+https://github.com/DonghaoWu/MERN-Template-V2.git"
   },
-  "author": "Donghao Wu",
+  "keywords": [
+    "Back-end"
+  ],
+  "author": "Donghao",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/DonghaoWu/MERN-Template-V1/issues"
+    "url": "https://github.com/DonghaoWu/MERN-Template-V2/issues"
   },
-  "homepage": "https://github.com/DonghaoWu/MERN-Template-V1#readme",
+  "homepage": "https://github.com/DonghaoWu/MERN-Template-V2#readme",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "concurrently": "^5.0.0",
-    "config": "^3.2.3",
-    "express": "^4.17.1",
-    "express-validator": "^6.1.1",
-    "gravatar": "^1.8.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.6.8",
-    "morgan": "^1.9.1"
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
   },
   "devDependencies": {
-    "eslint": "^6.7.2",
-    "eslint-config-airbnb": "^18.0.1",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-react": "^7.17.0",
-    "nodemon": "^1.19.1",
-    "prettier": "^1.19.1"
+    "nodemon": "^2.0.1"
   }
 }
