@@ -1,6 +1,6 @@
-# MERN-Template-V1-Guide
+# MERN-Template-V2-Guide
 
-## This is a guide for using this template(V1).
+## This is a guide for using V2 template.
 
 ### Final view(deployed): [https://safe-oasis-55973.herokuapp.com/](https://safe-oasis-55973.herokuapp.com/)
 
