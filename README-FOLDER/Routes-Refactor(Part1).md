@@ -85,7 +85,7 @@ const PORT = process.env.PORT || 5000;
 - Change the default route part to `./api/v2`, so every request will begin with `/api/v2`.
 
 ### `Step4: Add controllers folder in root directory`
-#### `Location:./server.js`
+#### `Location:./controllers`
 
 ### `Step5: Create a method js file in controllers folder, ('auth.js')`
 #### `(*2.4)Location:./controllers/auth.js`
@@ -129,6 +129,16 @@ exports.deleteMessage = (req, res, next) => {
 ```
 
 ### `Step6: Import the methods to route`
+#### `Location:./api/index.js`
+
+```js
+const router = require('express').Router();
+
+router.use('/auth', require('./auth'));
+
+module.exports = router;
+```
+
 #### `(*2.5)Location:./api/auth.js`
 
 ```js
