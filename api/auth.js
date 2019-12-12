@@ -1,5 +1,10 @@
 const router = require('express').Router();
-const { getMessage, sendMessage, updateMessage, deleteMessage } = require('../controllers/auth')
+const {
+    getMessage,
+    sendMessage,
+    updateMessage,
+    deleteMessage
+} = require('../controllers/auth')
 // const auth = require('../middleware/auth');
 // const config = require('config');
 // const bcrypt = require('bcryptjs')

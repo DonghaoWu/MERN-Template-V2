@@ -19,7 +19,7 @@
 - 2.2 Add new file in config folder('config.env'), and ignore it `Location:./config/config.env`
 - 2.3 Change some code in server.js, `Location:./server.js`
 - 2.4 Add controllers folder in root directory, `Location:./`
-- 2.5 Create a method file in controllers folder 'auth.js', `Location:./controllers/auth.js`
+- 2.5 Create a method file in controllers folder ('auth.js'), `Location:./controllers/auth.js`
 - 2.6 Import the methods to routes, `Location:./api/auth.js`
 - 2.7 Add a logger middleware (morgan), `Location:./server.js`
 
@@ -87,7 +87,7 @@ const PORT = process.env.PORT || 5000;
 ### `Step4: Add controllers folder in root directory`
 #### `Location:./server.js`
 
-### `Step5: Create a method js file in controllers folder,'auth.js'`
+### `Step5: Create a method js file in controllers folder, ('auth.js')`
 #### `(*2.4)Location:./controllers/auth.js`
 
 ```js
@@ -133,7 +133,12 @@ exports.deleteMessage = (req, res, next) => {
 
 ```js
 const router = require('express').Router();
-const { getMessage, sendMessage, updateMessage, deleteMessage } = require('../controllers/auth')
+const {
+    getMessage,
+    sendMessage,
+    updateMessage,
+    deleteMessage
+} = require('../controllers/auth')
 
 router.route('/')
     .get(getMessage)
@@ -181,3 +186,8 @@ app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 
 - Environment variables should be the very beginning of the file.
 - Route middlewares should right between `const app = express();` and `app.use('/api/v2', require('./api'));`.
+- morgan is a logger dependency, it will show the details of each request.
+
+### Step8 : TEST
+
+
