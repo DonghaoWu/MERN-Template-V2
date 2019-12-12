@@ -200,7 +200,7 @@ app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 <img src="../assets/202.png" width=85%>
 </p>
 
-- Send a request Get the right respond back.
+- Send a request then get the right respond back.(Here just show one of four).
 <p align="center">
 <img src="../assets/203.png" width=85%>
 </p>
