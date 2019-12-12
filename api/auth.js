@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getMessage, sendMessage } = require('../controllers/auth')
+const { getMessage, sendMessage, updateMessage, deleteMessage } = require('../controllers/auth')
 // const auth = require('../middleware/auth');
 // const config = require('config');
 // const bcrypt = require('bcryptjs')
@@ -16,7 +16,11 @@ const { getMessage, sendMessage } = require('../controllers/auth')
 //   res.status(200).send('Hello, This is a message from /api/v2/auth')
 // })
 
-router.route('/').get(getMessage).post(sendMessage);
+router.route('/')
+    .get(getMessage)
+    .post(sendMessage)
+    .put(updateMessage)
+    .delete(deleteMessage);
 
 // router.route('/:id')
 
