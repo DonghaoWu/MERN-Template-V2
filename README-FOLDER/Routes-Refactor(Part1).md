@@ -2,7 +2,7 @@
 
 ## `Section: Backend`(Refactor backend route)
 
-### `Summary`: In this documentation, we refactor backend route.
+### `Summary`: In this documentation, we refactor backend route by using seperate controller files.
 
 ### `Check Dependencies`
 
