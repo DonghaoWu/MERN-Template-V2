@@ -20,7 +20,7 @@
 - 2.3 Change some code in server.js, `Location:./server.js`
 - 2.4 Add controllers folder in root directory, `Location:./`
 - 2.5 Create a method file in controllers folder ('auth.js'), `Location:./controllers/auth.js`
-- 2.6 Import the methods to routes, `Location:./api/auth.js`
+- 2.6 Import the methods to route, `Location:./api/auth.js`
 - 2.7 Add a logger middleware (morgan), `Location:./server.js`
 
 ### `Step1:Add scripts in package.json`
@@ -128,7 +128,7 @@ exports.deleteMessage = (req, res, next) => {
 }
 ```
 
-### `Step6: Import the methods to routes`
+### `Step6: Import the methods to route`
 #### `(*2.5)Location:./api/auth.js`
 
 ```js
@@ -185,23 +185,27 @@ app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 ### `Comments:`
 
 - Environment variables should be the very beginning of the file.
-- Route middlewares should right between `const app = express();` and `app.use('/api/v2', require('./api'));`.
+- Route middlewares should be right between `const app = express();` and `app.use('/api/v2', require('./api'));`.
 - morgan is a logger dependency, it will show the details of each request.
 
 ### Step8 : TEST
 
+- Run command in git bash.
 <p align="center">
 <img src="../assets/201.png" width=85%>
 </p>
 
+- Set up postman environment.
 <p align="center">
 <img src="../assets/202.png" width=85%>
 </p>
 
+- Send a request Get the right respond back.
 <p align="center">
 <img src="../assets/203.png" width=85%>
 </p>
 
+- morgan is working.
 <p align="center">
 <img src="../assets/204.png" width=85%>
 </p>
