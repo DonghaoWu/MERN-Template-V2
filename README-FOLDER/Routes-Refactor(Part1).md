@@ -190,4 +190,18 @@ app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 
 ### Step8 : TEST
 
+<p align="center">
+<img src="../assets/201.png" width=85%>
+</p>
 
+<p align="center">
+<img src="../assets/202.png" width=85%>
+</p>
+
+<p align="center">
+<img src="../assets/203.png" width=85%>
+</p>
+
+<p align="center">
+<img src="../assets/204.png" width=85%>
+</p>
