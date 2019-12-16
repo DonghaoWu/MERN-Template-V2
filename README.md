@@ -195,9 +195,9 @@ $ kill -9 PID
 
 ### `Step6: Add a new back end api route (back end).`
 
-##### `Location: ./api`
+##### `Location: ./apis`
 - Add a new route here as a js file.
-##### `Location: ./api/index.js`
+##### `Location: ./apis/index.js`
 - Import the new route here.
 
 ### `Step7: Add a new component (front end).`

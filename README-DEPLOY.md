@@ -93,7 +93,7 @@ connectDB();
 /*
 Routes here!
 */
-app.use("/api", require("./api"));
+app.use("/api", require("./apis"));
 
 //Serve static  assets in production
 if (process.env.NODE_ENV === 'production') {

@@ -1,8 +1,8 @@
-# MERN-Template-V2(part 1)
+# MERN-Template-V2(part 2)
 
-## `Section: Backend`(Refactor backend route)
+## `Section: Backend`(Refactor backend database and User model)
 
-### `Summary`: In this documentation, we refactor backend route by using seperate controller files.
+### `Summary`: In this documentation, we backend database and User model.
 
 ### `Check Dependencies`
 
@@ -10,44 +10,51 @@
 - express
 - dotenv
 - morgan
+- mongoose
+- colors
+- jsonwebtoken
+- bcryptjs
 
 (Dev-dependencies)
 - nodemon
 
 ### `Brief Contents & codes position`
-- 2.1 Add scripts in package.json, `Location:./package.json`
-- 2.2 Add new file in config folder('config.env'), and ignore it `Location:./config/config.env`
+- 2.1 Add a new variable in config.env, `Location:./config/config.env`
+- 2.2 Change code in db configuration, `Location:./config/db.js`
 - 2.3 Change some code in server.js, `Location:./server.js`
-- 2.4 Add controllers folder in root directory, `Location:./`
-- 2.5 Create a method file in controllers folder ('auth.js'), `Location:./controllers/auth.js`
-- 2.6 Import the methods to route, `Location:./apis/auth.js`
+
+- 2.4 Create new model for User, `Location:./models/User.js`
+- 2.5 Change the code in routes, `Location:./apis/auth.js`
+- 2.6 Change the code in controllers, `Location:./controllers/auth.js`
 - 2.7 Add a logger middleware (morgan), `Location:./server.js`
 
-### `Step1:Add scripts in package.json`
-#### `(*2.1)Location:./package.json`
-
-```js
-/*...*/
-"scripts": {
-    "start": "NODE_ENV = production node server.js",
-    "dev": "nodemon server"
-},
-/*...*/
-```
-
-### `Step2:Add new file in config folder('config.env'), and ignore it `,
-#### `(*2.2)Location:./config/config.env`
+### `Step1: Add a new variable in config.env`
+#### `(*2.1)Location:./config/config.env`
 
 ```js
 NODE_ENV=development
 PORT=5000
+
+MONGO_URI =mongodb+srv:...
 ```
 
-#### `(*2.3)Location:./.gitignore`
+### `Step2: Change code in db configuration`,
+#### `(*2.2)Location:./config/db.js`
 
-```bash
-node_modules/
-config/config.env
+```js
+const mongoose = require('mongoose');
+
+const connectDB = async () => {
+    await mongoose.connect(process.env.MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
+    });
+    console.log('MongoDB connected...'.yellow.bold);
+}
+
+module.exports = connectDB;
 ```
 
 ### `Step3: Change some code in server.js`
@@ -59,33 +66,111 @@ const dotenv = require('dotenv');
 dotenv.config({ path: './config/config.env' });
 const PORT = process.env.PORT || 5000;
 
-//package
+//packages
 const express = require('express');
+const morgan = require('morgan');
+const colors = require('colors');
+const connectDB = require('./config/db');
 
 //Apply
 const app = express();
+
+//DB
+connectDB();
+
+//Middlewares
+app.use(express.json());
+
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
 
 /*
 Routes here!!
 */
 app.use('/api/v2', require('./apis'));
 
-app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
+const server = app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
+
+//Handle unhandled promise rejection
+
+process.on('unhandledRejection', (err, promise) => {
+    console.log(`Error: ${err.message}`.red.bold);
+    server.close(() => process.exit(1));
+})
+
 ```
 
 ### `Comments:`
 
-- Here we use dotenv instead of config dependency.
-- The code about environment variables should be the very beginning of this file.
+- Import the DB and connect it.
 ```js
-const dotenv = require('dotenv');
-dotenv.config({ path: './config/config.env' });
-const PORT = process.env.PORT || 5000;
+const connectDB = require('./config/db');
+connectDB();
 ```
-- Change the default route part to `/api/v2`, so every request will begin with `/api/v2`.
 
-### `Step4: Add controllers folder in root directory`
-#### `Location:./controllers`
+- Add body parser middleware.(`Easy to make mistake!`)
+```js
+app.use(express.json());
+```
+- Add `unhandledRejection` error handler. Instead put try catch in db.js
+```js
+const server = app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
+
+process.on('unhandledRejection', (err, promise) => {
+    console.log(`Error: ${err.message}`.red.bold);
+    server.close(() => process.exit(1));
+})
+```
+
+### `Step4: Create new model for User`
+#### `Location:./models/User.js`
+
+```js
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const UserSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Please add a name'],
+    },
+    email: {
+        type: String,
+        required: [true, 'Please add an email'],
+        unique: true,
+        match: [
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            'Please add a valid email'
+        ]
+    },
+    role: {
+        type: String,
+        enum: ['user', 'publisher'],
+        default: 'user'
+    },
+    password: {
+        type: String,
+        required: [true, 'Please add a password'],
+        minlength: 6,
+        select: false,
+    },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    }
+});
+
+//Encrypt password using bcrypt
+UserSchema.pre('save', async function (next) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+})
+
+module.exports = mongoose.model('User', UserSchema);
+```
 
 ### `Step5: Create a method js file in controllers folder, ('auth.js')`
 #### `(*2.4)Location:./controllers/auth.js`
