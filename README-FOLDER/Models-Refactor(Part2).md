@@ -7,16 +7,16 @@
 ### `Check Dependencies`
 
 (Back-end)
-- express
-- dotenv
-- morgan
-- mongoose
-- colors
-- jsonwebtoken
-- bcryptjs
+- express (part1)
+- dotenv (part1)
+- morgan (part1)
+- mongoose (part2)
+- colors (part2)
+- jsonwebtoken (part2)
+- bcryptjs (part2)
 
 (Dev-dependencies)
-- nodemon
+- nodemon (part1)
 
 ### `Brief Contents & codes position`
 - 2.1 Add a new variable in config.env, `Location:./config/config.env`
