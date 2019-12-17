@@ -249,7 +249,7 @@ exports.register = async (req, res, next) => {
 $ npm run dev
 ```
 
-- Set up header ----> content-type: Application/json.
+- Set up header in Postman ----> content-type: Application/json.
 <p align="center">
 <img src="../assets/205.png" width=85%>
 </p>
