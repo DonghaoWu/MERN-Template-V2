@@ -93,7 +93,7 @@ module.exports = mongoose.model('User', UserSchema);
 
 ```diff
 + 重要的事情讲三遍，在mongoDB的model中不能用 arrow function
-- UserSchema.methods.getSignedJwtToken = function() {}
+- UserSchema.methods.getSignedJwtToken = () => {}
 ```
 
 ### `Step2: Add login method`
