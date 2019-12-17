@@ -244,6 +244,7 @@ exports.register = async (req, res, next) => {
 
 ### Step6 : TEST
 
+- Run command in bash.
 ```bash
 $ npm run dev
 ```
