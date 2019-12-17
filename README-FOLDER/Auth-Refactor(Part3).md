@@ -1,6 +1,6 @@
 # MERN-Template-V2(part 3)
 
-## `Section: Backend`(Refactor backend Authentication route)
+## `Section: Backend`(Refactor backend Authentication route) --- 练习使用 route middleware。
 
 ### `Summary`: In this documentation, we refactor authentication route.
 
@@ -289,7 +289,80 @@ exports.login = async (req, res, next) => {
 - 中间第C部的函数 `sendTokenResponse` 是本说明的重点.
 
 ### `Step5: Create a Auth Protect Middleware(security)`
+
+#### A.Create a middleware method
+#### `Location:./middleware/auth.js`
+
+```js
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+exports.protect = async (req, res, next) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  // else if (req.cookies.token) {
+  //   token = req.cookies.token
+  // }
+
+  // Make sure token exists
+  // if (!token) {
+  //   return res.status(400).json({ success: false })
+  // }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id);
+    next();
+  } catch (err) {
+    return res.status(400).json({ success: false })
+  }
+}
+```
+
+#### B.Create a new route （getMe）
 #### `Location:./controllers/auth.js`
+
+```js
+// @desc       Get current logged in user
+// @route      Post /api/v2/auth/me
+// @access     Private
+exports.getMe = async (req, res, next) => {
+    const user = await User.findById(req.user.id);
+    res.status(200).json({
+        success: true,
+        data: user
+    });
+}
+```
+
+#### C.Import the route and middleware in api
+#### `Location:./apis/auth.js`
+
+```js
+const router = require('express').Router();
+const {
+    register,
+    login,
+    getMe
+} = require('../controllers/auth');
+
+const { protect } = require('../middleware/auth')
+
+router.post('/register', register);
+router.post('/login', login);
+router.get('/me', protect, getMe)
+
+module.exports = router;
+```
+
+### `Comments:`
+
+- 写middleware必须注意两点，第一点是必须有改变req的代码，第二点是必须有`next()`.
+- 在这个设计流程中，经过`protect`中间件的route都会在`req`中取得user全部的信息，而protect中间件的主要作用是在解析token，然后寻找对应的user，如果有user就改变req，如果没有就报错。
+- 这个部分也是很重要，主要练习如何使用route middleware。
 
 ### `Step6: Set up Role Authorization(security)`
 #### `Location:./controllers/auth.js`
@@ -304,17 +377,23 @@ exports.login = async (req, res, next) => {
 $ npm run dev
 ```
 
-- Set up header in Postman ----> content-type: Application/json.
+- Register a new user
 <p align="center">
-<img src="../assets/205.png" width=85%>
+<img src="../assets/208.png" width=85%>
+</p>
+<p align="center">
+<img src="../assets/209.png" width=85%>
 </p>
 
-- Edit the raw body, send the request and get token back.
+- Login the new user with the email and password, then get a token back.
 <p align="center">
-<img src="../assets/206.png" width=85%>
+<img src="../assets/210.png" width=85%>
+</p>
+<p align="center">
+<img src="../assets/211.png" width=85%>
 </p>
 
-- New user with encrypted password in Altas is created.
+- In route '/api/v2/auth/me', use the token and protect middleware to get user's info.
 <p align="center">
-<img src="../assets/207.png" width=85%>
+<img src="../assets/212.png" width=85%>
 </p>
