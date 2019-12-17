@@ -76,7 +76,7 @@ UserSchema.pre('save', async function (next) {
 });
 
 // Sign JWT and return
-UserSchema.methods.getSignedJwtToken = () => {
+UserSchema.methods.getSignedJwtToken = function() {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
     })
@@ -89,6 +89,11 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
 }
 
 module.exports = mongoose.model('User', UserSchema);
+```
+
+```diff
++ 重要的事情讲三遍，在mongoDB的model中不能用 arrow function
+- UserSchema.methods.getSignedJwtToken = function() {}
 ```
 
 ### `Step2: Add login method`
