@@ -139,7 +139,7 @@ exports.login = async (req, res, next) => {
 - 实现：输入存在的用户和正确的密码，返回token。
 
 ### `Step3: Bring login method to route`
-#### `(*3.2)Location:./apis/auth.js`
+#### `Location:./apis/auth.js`
 
 ```js
 const router = require('express').Router();
@@ -154,12 +154,6 @@ router.post('/login', login)
 module.exports = router;
 ```
 
-### `Comments:`
-- Import the colors library.
-```js
-const colors = require('colors');
-```
-
 ### `Step4: Create a helper function to create token and store it in cookie`
 
 #### A. Add new package.
@@ -167,13 +161,57 @@ const colors = require('colors');
 ```
 $ npm i cookie-parser
 ```
-#### `Location:./server.js`
+
+#### `(*3.2)Location:./server.js`
 ```js
+//Load env vars
+const dotenv = require('dotenv');
+dotenv.config({ path: './config/config.env' });
+const PORT = process.env.PORT || 5000;
+
+//packages
+const express = require('express');
+const morgan = require('morgan');
+const colors = require('colors');
 const cookieParser = require('cookie-parser');
+const connectDB = require('./config/db');
+
+//Apply
+const app = express();
+
+//DB
+connectDB();
+
+
+//Middlewares
+app.use(express.json());
 app.use(cookieParser());
+
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
+
+/*
+Routes here!!
+*/
+app.use('/api/v2', require('./apis'));
+
+const server = app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
+
+//Handle unhandled promise rejection
+process.on('unhandledRejection', (err, promise) => {
+    console.log(`Error: ${err.message}`.red.bold);
+    server.close(() => process.exit(1));
+})
+
+```
+
+```diff
++ const cookieParser = require('cookie-parser');
++ app.use(cookieParser());
 ```
 #### B.Add new environment variable
-#### `Location:./config/config.env`
+#### `(*3.3)Location:./config/config.env`
 
 ```js
 NODE_ENV=development
@@ -213,7 +251,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 ```
 
 #### D.Refactor register and login methods
-#### `Location:./controllers/auth.js`
+#### `(*3.4)Location:./controllers/auth.js`
 ```js
 const User = require('../models/User');
 
@@ -291,7 +329,7 @@ exports.login = async (req, res, next) => {
 ### `Step5: Create a Auth Protect Middleware(security)`
 
 #### A.Create a middleware method
-#### `Location:./middleware/auth.js`
+#### `(*3.5)Location:./middleware/auth.js`
 
 ```js
 const User = require('../models/User');
@@ -323,7 +361,7 @@ exports.protect = async (req, res, next) => {
 ```
 
 #### B.Create a new route （getMe）
-#### `Location:./controllers/auth.js`
+#### `(*add)Location:./controllers/auth.js`
 
 ```js
 // @desc       Get current logged in user
@@ -366,6 +404,20 @@ module.exports = router;
 
 ### `Step6: Set up Role Authorization(security)`
 #### `Location:./controllers/auth.js`
+
+
+
+
+
+- 这个说明中改动的文件比较多，改动的代码也多，不能成为一个很好的说明，在这里暂时列出本说明中做出改变的文件，希望能起帮助。
+
+1. `./apis/auth.js`
+2. `./controllers/auth.js`
+3. `./middleware/auth.js`
+4. `./server.js`
+5. `./config/config.env`
+6. `./models/User.js`
+
 
 
 
