@@ -1,8 +1,8 @@
 # MERN-Template-V2(part 2)
 
-## `Section: Backend`(Refactor backend database and User model)
+## `Section: Backend`(Refactor backend database and User model and register route)
 
-### `Summary`: In this documentation, we backend database and User model.
+### `Summary`: In this documentation, we refactor backend database and User model and register route.
 
 ### `Check Dependencies`
 
@@ -19,16 +19,16 @@
 - nodemon (part1)
 
 ### `Brief Contents & codes position`
-- 2.1 Add a new variable in config.env, `Location:./config/config.env`
+- 2.1 Add new variables in config.env, `Location:./config/config.env`
 - 2.2 Change code in db configuration, `Location:./config/db.js`
 - 2.3 Change some code in server.js, `Location:./server.js`
 
 - 2.4 Create new model for User, `Location:./models/User.js`
-- 2.5 Change the code in routes, `Location:./apis/auth.js`
+- 2.5 Refactor register route
 - 2.6 Change the code in controllers, `Location:./controllers/auth.js`
 - 2.7 Add a logger middleware (morgan), `Location:./server.js`
 
-### `Step1: Add a new variable in config.env`
+### `Step1: Add new variables in config.env`
 #### `(*2.1)Location:./config/config.env`
 
 ```js
@@ -36,6 +36,8 @@ NODE_ENV=development
 PORT=5000
 
 MONGO_URI =mongodb+srv:...
+JWT_SECRET=...
+JWT_EXPIRE=...
 ```
 
 ### `Step2: Change code in db configuration`,
@@ -56,9 +58,11 @@ const connectDB = async () => {
 
 module.exports = connectDB;
 ```
+### `Comments:`
+- 在这里取消了使用try catch的方法进行错误处理。
 
 ### `Step3: Change some code in server.js`
-#### `Location:./server.js`
+#### `(*2.3)Location:./server.js`
 
 ```js
 //Load env vars
@@ -98,22 +102,24 @@ process.on('unhandledRejection', (err, promise) => {
     console.log(`Error: ${err.message}`.red.bold);
     server.close(() => process.exit(1));
 })
-
 ```
 
 ### `Comments:`
 
 - Import the DB and connect it.
+
 ```js
 const connectDB = require('./config/db');
 connectDB();
 ```
 
-- Add body parser middleware.(`Easy to make mistake!`)
+- Add body parser middleware.(`An easy mistake!`)
+
 ```js
 app.use(express.json());
 ```
-- Add `unhandledRejection` error handler. Instead put try catch in db.js
+- Add `unhandledRejection` error handler. Instead put try catch in db.js（要注意这里的`unhandledRejection`是一个内定义变量）
+
 ```js
 const server = app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 
@@ -124,11 +130,12 @@ process.on('unhandledRejection', (err, promise) => {
 ```
 
 ### `Step4: Create new model for User`
-#### `Location:./models/User.js`
+#### `(*2.4)Location:./models/User.js`
 
 ```js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken')
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -163,58 +170,28 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-//Encrypt password using bcrypt
+// Encrypt password using bcrypt
 UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-})
+});
+
+// Sign JWT and return
+UserSchema.methods.getSignedJwtToken = () => {
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE
+    })
+}
 
 module.exports = mongoose.model('User', UserSchema);
 ```
 
-### `Step5: Create a method js file in controllers folder, ('auth.js')`
-#### `(*2.4)Location:./controllers/auth.js`
+### `Comments:`
 
-```js
-// @desc       Get a message
-// @route      Get /api/v2/auth
-// @access     Public
-exports.getMessage = (req, res, next) => {
-    console.log('GET method');
-    res.status(200)
-        .send("A message from function getMessage and path '/api/v2/auth'")
-}
+- 这个模型的特色在于，把validation放在model，加入了model method概念，还有hook概念，后续改英文.
 
-// @desc       Create a message
-// @route      Post /api/v2/auth
-// @access     Public
-exports.sendMessage = (req, res, next) => {
-    console.log('POST method');
-    res.status(200)
-        .send("A message from function sendMessage and path '/api/v2/auth'")
-}
-
-// @desc       Update a message
-// @route      Put /api/v2/auth
-// @access     Public
-exports.updateMessage = (req, res, next) => {
-    console.log('PUT method');
-    res.status(200)
-        .send("A message from function updateMessage and path '/api/v2/auth'")
-}
-
-// @desc       Delete a message
-// @route      Delete /api/v2/auth
-// @access     Public
-exports.deleteMessage = (req, res, next) => {
-    console.log('DELETE method');
-    res.status(200)
-        .send("A message from function deleteMessage and path '/api/v2/auth'")
-}
-```
-
-### `Step6: Import the methods to route`
-#### `Location:./apis/index.js`
+### `Step5: Create register route.(重新组织路由)`
+#### `(*2.5)Location:./apis/index.js`
 
 ```js
 const router = require('express').Router();
@@ -224,83 +201,59 @@ router.use('/auth', require('./auth'));
 module.exports = router;
 ```
 
-#### `(*2.5)Location:./apis/auth.js`
+#### `(*2.6)Location:./apis/auth.js`
 
 ```js
 const router = require('express').Router();
 const {
-    getMessage,
-    sendMessage,
-    updateMessage,
-    deleteMessage
+    register,
 } = require('../controllers/auth')
 
-router.route('/')
-    .get(getMessage)
-    .post(sendMessage)
-    .put(updateMessage)
-    .delete(deleteMessage);
+router.post('/register', register);
+
+module.exports = router;
 ```
 
-### `Comments:`
-
-- This is the most important step in this part.
-- We import the methods from other files and use them in our route.
-- Current route is `/api/v2/auth`
-
-### `Step7: Add a logger middleware (morgan)`
-#### `(*2.6)Location:./server.js`
+#### `(*2.7)Location:./controllers/auth.js`
 
 ```js
-//Load env vars
-const dotenv = require('dotenv');
-dotenv.config({ path: './config/config.env' });
-const PORT = process.env.PORT || 5000;
+// @desc       Register user
+// @route      Post /api/v2/auth/register
+// @access     Public
+const User = require('../models/User');
 
-//packages
-const express = require('express');
-const morgan = require('morgan');
+exports.register = async (req, res, next) => {
+    const { name, email, password, role } = req.body;
 
-//Apply
-const app = express();
+    const user = await User.create({
+        name,
+        email,
+        password,
+        role
+    });
 
-//Middlewares
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
+    const token = user.getSignedJwtToken();
+
+    res.status(200).json({
+        success:true,
+        token: token
+    })
 }
-
-/*
-Routes here!!
-*/
-app.use('/api/v2', require('./apis'));
-
-app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 ```
 
-### `Comments:`
+### Step6 : TEST
 
-- Environment variables should be the very beginning of the file.
-- Route middlewares should be right between `const app = express();` and `app.use('/api/v2', require('./api'));`.
-- morgan is a logger dependency, it will show the details of each request.
-
-### Step8 : TEST
-
-- Run command in git bash.
+- Set up header ----> content-type: Application/json.
 <p align="center">
-<img src="../assets/201.png" width=85%>
+<img src="../assets/205.png" width=85%>
 </p>
 
-- Set up postman environment.
+- Edit the raw body, send the request and get token back.
 <p align="center">
-<img src="../assets/202.png" width=85%>
+<img src="../assets/206.png" width=85%>
 </p>
 
-- Send a request then get the respond back.(Here just show one of four).
+- New user with encrypted password in Altas is created.
 <p align="center">
-<img src="../assets/203.png" width=85%>
-</p>
-
-- morgan is working.
-<p align="center">
-<img src="../assets/204.png" width=85%>
+<img src="../assets/207.png" width=85%>
 </p>

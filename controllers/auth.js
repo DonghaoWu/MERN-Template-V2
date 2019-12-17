@@ -1,8 +1,60 @@
+// const User = require('../models/User');
+
+// const sendTokenResponse = (user, statusCode, res) => {
+//     const token = user.getSignedJwtToken();
+//     const options = {
+//         expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+//         httpOnly: true
+//     }
+
+//     //For production
+//     if (process.env.NODE_ENV === 'production') {
+//         options.secure = true;
+//     }
+
+//     res
+//         .status(statusCode)
+//         .cookie('token', token, options)
+//         .json({
+//             success: true,
+//             token: token
+//         });
+// }
+
+// // @desc       Register user
+// // @route      Post /api/v2/auth/register
+// // @access     Public
+// exports.register = async (req, res, next) => {
+//     const { name, email, password, role } = req.body;
+
+//     const user = await User.create({
+//         name,
+//         email,
+//         password,
+//         role
+//     });
+
+//     sendTokenResponse(user, 200, res)
+// }
+
+// // @desc       Login user
+// // @route      Post /api/v2/auth/register
+// // @access     Public
+// exports.login = async (req, res, next) => {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email }).select('+password');
+
+//     //Check if password matched
+//     const isMatch = await user.matchPassword(password);
+
+//     //Create token
+//     sendTokenResponse(user, 200, res)
+// }
+
+
 const User = require('../models/User');
 
-// @desc       Register user
-// @route      Post /api/v2/auth/register
-// @access     Public
 exports.register = async (req, res, next) => {
     const { name, email, password, role } = req.body;
 
@@ -13,37 +65,10 @@ exports.register = async (req, res, next) => {
         role
     });
 
-    res.status(200).json({ success: true });
+    const token = user.getSignedJwtToken();
+
+    res.status(200).json({
+        success: true,
+        token: token
+    })
 }
-
-
-
-
-// exports.getMessage = (req, res, next) => {
-//     res.status(200)
-//         .send("A message from function getMessage and path '/api/v2/auth'")
-// }
-
-// // @desc       Create a message
-// // @route      Post /api/v2/auth
-// // @access     Public
-// exports.sendMessage = (req, res, next) => {
-//     res.status(200)
-//         .send("A message from function sendMessage and path '/api/v2/auth'")
-// }
-
-// // @desc       Update a message
-// // @route      Put /api/v2/auth
-// // @access     Public
-// exports.updateMessage = (req, res, next) => {
-//     res.status(200)
-//         .send("A message from function updateMessage and path '/api/v2/auth'")
-// }
-
-// // @desc       Delete a message
-// // @route      Delete /api/v2/auth
-// // @access     Public
-// exports.deleteMessage = (req, res, next) => {
-//     res.status(200)
-//         .send("A message from function deleteMessage and path '/api/v2/auth'")
-// }

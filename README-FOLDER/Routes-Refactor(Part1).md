@@ -15,16 +15,16 @@
 - nodemon (part1)
 
 ### `Brief Contents & codes position`
-- 2.1 Add scripts in package.json, `Location:./package.json`
-- 2.2 Add new file in config folder('config.env'), and ignore it `Location:./config/config.env`
-- 2.3 Change some code in server.js, `Location:./server.js`
-- 2.4 Add controllers folder in root directory, `Location:./`
-- 2.5 Create a method file in controllers folder ('auth.js'), `Location:./controllers/auth.js`
-- 2.6 Import the methods to route, `Location:./apis/auth.js`
-- 2.7 Add a logger middleware (morgan), `Location:./server.js`
+- 1.1 Add scripts in package.json, `Location:./package.json`
+- 1.2 Add new file in config folder('config.env'), and ignore it `Location:./config/config.env`
+- 1.3 Change some code in server.js, `Location:./server.js`
+- 1.4 Add controllers folder in root directory, `Location:./`
+- 1.5 Create a method file in controllers folder ('auth.js'), `Location:./controllers/auth.js`
+- 1.6 Import the methods to route, `Location:./apis/auth.js`
+- 1.7 Add a logger middleware (morgan), `Location:./server.js`
 
 ### `Step1:Add scripts in package.json`
-#### `(*2.1)Location:./package.json`
+#### `(*1.1)Location:./package.json`
 
 ```js
 /*...*/
@@ -35,15 +35,15 @@
 /*...*/
 ```
 
-### `Step2:Add new file in config folder('config.env'), and ignore it `,
-#### `(*2.2)Location:./config/config.env`
+### `Step1:Add new file in config folder('config.env'), and ignore it `,
+#### `(*1.2)Location:./config/config.env`
 
 ```js
 NODE_ENV=development
 PORT=5000
 ```
 
-#### `(*2.3)Location:./.gitignore`
+#### `(*1.3)Location:./.gitignore`
 
 ```bash
 node_modules/
@@ -88,7 +88,7 @@ const PORT = process.env.PORT || 5000;
 #### `Location:./controllers`
 
 ### `Step5: Create a method js file in controllers folder, ('auth.js')`
-#### `(*2.4)Location:./controllers/auth.js`
+#### `(*1.4)Location:./controllers/auth.js`
 
 ```js
 // @desc       Get a message
@@ -139,7 +139,7 @@ router.use('/auth', require('./auth'));
 module.exports = router;
 ```
 
-#### `(*2.5)Location:./apis/auth.js`
+#### `(*1.5)Location:./apis/auth.js`
 
 ```js
 const router = require('express').Router();
@@ -164,7 +164,7 @@ router.route('/')
 - Current route is `/api/v2/auth`
 
 ### `Step7: Add a logger middleware (morgan)`
-#### `(*2.6)Location:./server.js`
+#### `(*1.6)Location:./server.js`
 
 ```js
 //Load env vars
