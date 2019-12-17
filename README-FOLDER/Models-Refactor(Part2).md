@@ -192,7 +192,7 @@ module.exports = mongoose.model('User', UserSchema);
 - 这个模型的特色在于，把validation放在model，加入了model method概念，还有hook概念，同时模型的定义使用到的属性也很有用，后续改英文.
 
 ```diff
-+ 重要的事情讲三遍，在mongoDB的model中不能用 arrow function
++ 重要的事情讲三遍，在mongoDB的model中不能用 arrow function这是很难发现的bug，需要多留意。
 - UserSchema.methods.getSignedJwtToken = () => {}
 ```
 

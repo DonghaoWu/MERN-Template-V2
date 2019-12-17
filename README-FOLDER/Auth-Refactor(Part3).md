@@ -92,7 +92,7 @@ module.exports = mongoose.model('User', UserSchema);
 ```
 
 ```diff
-+ 重要的事情讲三遍，在mongoDB的model中不能用 arrow function
++ 重要的事情讲三遍，在mongoDB的model中不能用 arrow function这是很难发现的bug，需要多留意。
 - UserSchema.methods.getSignedJwtToken = () => {}
 ```
 
