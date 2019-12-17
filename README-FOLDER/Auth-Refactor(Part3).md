@@ -25,8 +25,8 @@
 - 3.3 Bring login method to route, `Location:./apis/auth.js`
 
 - 3.4 Create a helper function to create token and store it in cookie.(4 steps)
-- 3.5 Create a Auth Protect Middleware (security)
-- 3.6 Set up Role Authorization (security).
+- 3.5 Create a Auth Protect Middleware (security).
+- 3.6 Create a Role Authorization Middleware (security).
 
 ### `Step1: Add a new User model method,`
 #### `(*3.1)Location:./models/User.js`
@@ -259,7 +259,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
 ### `Comments:`
 
-- 中间第C部的函数 `sendTokenResponse` 是本说明的重点.
+- 中间第C步的函数 `sendTokenResponse` 是本说明的重点.
 
 ### `Step5: Create a Auth Protect Middleware(security)`
 
@@ -402,11 +402,11 @@ module.exports = router;
 
 ### `Comments:`
 
-- 写middleware必须注意两点，第一点是必须有改变req的代码，第二点是必须有`next()`.
+- 写middleware必须注意两点，第一点是有可能改变req的代码，第二点是必须有`next()`.
 - 在这个设计流程中，经过`protect`中间件的route都会在`req`中取得user全部的信息，而protect中间件的主要作用是在解析token，然后寻找对应的user，如果有user就改变req，如果没有就报错。
 - 这个部分也是很重要，主要练习如何使用route middleware。
 
-### `Step6: Set up Role Authorization(security)`
+### `Step6: Create a Role Authorization Middleware (security)`
 #### `(*3.6)Location:./middleware/auth.js`
 
 ```js
@@ -458,12 +458,15 @@ router.get('/someRoute', protect, authorize, someFunction);
 ### `Summary:`
 - 这个说明中改动的文件比较多，改动的代码也多，不能成为一个很好的说明，在这里暂时列出本说明中做出改变的文件，希望能起帮助。
 
-1. `./apis/auth.js`(*3.5)
-2. `./controllers/auth.js`(*3.4)
-3. `./middleware/auth.js`(*3.6)
-4. `./server.js`(*3.3)
-5. `./config/config.env`(*3.2)
-6. `./models/User.js`(*3.1)
+1. 
+3. 
+
+1. `./models/User.js`(*3.1) - add model, methods, hooks
+2. `./config/config.env`(*3.2) -- add variables
+3. `./server.js`(*3.3) -- import cookie-parser
+4. `./controllers/auth.js`(*3.4) -- add getMe route
+5. `./middleware/auth.js`(*3.6) -- create 2 middlewares
+6. `./apis/auth.js`(*3.5) -- import 1 new route and 2 new middleware
 
 ### Step7 : TEST
 
