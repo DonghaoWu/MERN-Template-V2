@@ -251,7 +251,53 @@ const sendTokenResponse = (user, statusCode, res) => {
 ```
 
 #### D.Refactor register and login methods
-#### `(*3.4)Location:./controllers/auth.js`
+#### `Location:./controllers/auth.js`
+
+```js
+//See PartB step5
+```
+
+### `Comments:`
+
+- 中间第C部的函数 `sendTokenResponse` 是本说明的重点.
+
+### `Step5: Create a Auth Protect Middleware(security)`
+
+#### A.Create a middleware method
+#### `(*3.4)Location:./middleware/auth.js`
+
+```js
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+exports.protect = async (req, res, next) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  // else if (req.cookies.token) {
+  //   token = req.cookies.token
+  // }
+
+  // Make sure token exists
+  // if (!token) {
+  //   return res.status(400).json({ success: false })
+  // }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id);
+    next();
+  } catch (err) {
+    return res.status(400).json({ success: false })
+  }
+}
+```
+
+#### B.Create a new route （getMe）
+#### `(*3.5)Location:./controllers/auth.js`
+
 ```js
 const User = require('../models/User');
 
@@ -264,6 +310,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
     //For production
     if (process.env.NODE_ENV === 'production') {
+        //https
         options.secure = true;
     }
 
@@ -320,50 +367,7 @@ exports.login = async (req, res, next) => {
     //Create token
     sendTokenResponse(user, 200, res)
 }
-```
 
-### `Comments:`
-
-- 中间第C部的函数 `sendTokenResponse` 是本说明的重点.
-
-### `Step5: Create a Auth Protect Middleware(security)`
-
-#### A.Create a middleware method
-#### `(*3.5)Location:./middleware/auth.js`
-
-```js
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-
-exports.protect = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-
-  // else if (req.cookies.token) {
-  //   token = req.cookies.token
-  // }
-
-  // Make sure token exists
-  // if (!token) {
-  //   return res.status(400).json({ success: false })
-  // }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
-    next();
-  } catch (err) {
-    return res.status(400).json({ success: false })
-  }
-}
-```
-
-#### B.Create a new route （getMe）
-#### `(*add)Location:./controllers/auth.js`
-
-```js
 // @desc       Get current logged in user
 // @route      Post /api/v2/auth/me
 // @access     Private
@@ -408,21 +412,17 @@ module.exports = router;
 
 
 
-
+### `Summary:`
 - 这个说明中改动的文件比较多，改动的代码也多，不能成为一个很好的说明，在这里暂时列出本说明中做出改变的文件，希望能起帮助。
 
-1. `./apis/auth.js`
-2. `./controllers/auth.js`
-3. `./middleware/auth.js`
-4. `./server.js`
-5. `./config/config.env`
-6. `./models/User.js`
+1. `./apis/auth.js`()
+2. `./controllers/auth.js`(*3.5)
+3. `./middleware/auth.js`(*3.4)
+4. `./server.js`(*3.3)
+5. `./config/config.env`(*3.2)
+6. `./models/User.js`(*3.1)
 
-
-
-
-
-### Step6 : TEST
+### Step7 : TEST
 
 - Run command in bash.
 ```bash
