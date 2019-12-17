@@ -7,12 +7,12 @@
 ### `Check Dependencies`
 
 (Back-end)
-- express (part1)
-- dotenv (part1)
-- morgan (part1)
+- express (new)
+- dotenv (new)
+- morgan (new)
 
 (Dev-dependencies)
-- nodemon (part1)
+- nodemon (new)
 
 ### `Brief Contents & codes position`
 - 1.1 Add scripts in package.json, `Location:./package.json`
