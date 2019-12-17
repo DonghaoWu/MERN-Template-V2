@@ -458,9 +458,6 @@ router.get('/someRoute', protect, authorize, someFunction);
 ### `Summary:`
 - 这个说明中改动的文件比较多，改动的代码也多，不能成为一个很好的说明，在这里暂时列出本说明中做出改变的文件，希望能起帮助。
 
-1. 
-3. 
-
 1. `./models/User.js`(*3.1) - add model, methods, hooks
 2. `./config/config.env`(*3.2) -- add variables
 3. `./server.js`(*3.3) -- import cookie-parser
