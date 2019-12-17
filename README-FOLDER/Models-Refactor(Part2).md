@@ -215,7 +215,7 @@ router.post('/register', register);
 module.exports = router;
 ```
 
-#### `(*2.7)Location:./controllers/auth.js`
+#### `(*2.7)Location:./controllers/auth.js`(注意这里把function拆开来跟V1不一样，相当于把function写成了middleware，注意现在是3参数)。
 
 ```js
 const User = require('../models/User');
