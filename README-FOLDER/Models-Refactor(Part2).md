@@ -178,7 +178,7 @@ UserSchema.pre('save', async function (next) {
 });
 
 // Sign JWT and return
-UserSchema.methods.getSignedJwtToken = () => {
+UserSchema.methods.getSignedJwtToken = function(){
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
     })
@@ -190,6 +190,11 @@ module.exports = mongoose.model('User', UserSchema);
 ### `Comments:`
 
 - 这个模型的特色在于，把validation放在model，加入了model method概念，还有hook概念，同时模型的定义使用到的属性也很有用，后续改英文.
+
+```diff
++ 重要的事情讲三遍，在mongoDB的model中不能用 arrow function
+- UserSchema.methods.getSignedJwtToken = () => {}
+```
 
 ### `Step5: Create register route.(重新组织路由)`
 #### `(*2.5)Location:./apis/index.js`
