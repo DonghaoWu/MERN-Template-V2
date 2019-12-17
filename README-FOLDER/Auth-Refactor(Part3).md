@@ -264,7 +264,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 ### `Step5: Create a Auth Protect Middleware(security)`
 
 #### A.Create a middleware method
-#### `(*3.4)Location:./middleware/auth.js`
+#### `Location:./middleware/auth.js`
 
 ```js
 const User = require('../models/User');
@@ -296,7 +296,7 @@ exports.protect = async (req, res, next) => {
 ```
 
 #### B.Create a new route （getMe）
-#### `(*3.5)Location:./controllers/auth.js`
+#### `(*3.4)Location:./controllers/auth.js`
 
 ```js
 const User = require('../models/User');
@@ -381,7 +381,7 @@ exports.getMe = async (req, res, next) => {
 ```
 
 #### C.Import the route and middleware in api
-#### `Location:./apis/auth.js`
+#### `(*3.5)Location:./apis/auth.js`
 
 ```js
 const router = require('express').Router();
@@ -407,17 +407,60 @@ module.exports = router;
 - 这个部分也是很重要，主要练习如何使用route middleware。
 
 ### `Step6: Set up Role Authorization(security)`
-#### `Location:./controllers/auth.js`
+#### `(*3.6)Location:./middleware/auth.js`
 
+```js
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
+//Check if the token is valid
+exports.protect = async (req, res, next) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
 
+  // else if (req.cookies.token) {
+  //   token = req.cookies.token
+  // }
+
+  // Make sure token exists
+  // if (!token) {
+  //   return res.status(400).json({ success: false })
+  // }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id);
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false })
+  }
+}
+
+//Grand access to specific roles
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ success: false });
+    }
+    next();
+  }
+}
+```
+### `Comment:`
+- 在目前而言，还没有一个route用到这个middleware，常用的方法是：
+```js
+router.get('/someRoute', protect, authorize, someFunction);
+```
+- 以上middleware的顺序说明了，`protect middleware`取得user的信息这个步骤是必要的，因为后面的`authorize middleware`会用到那里面的信息。
 
 ### `Summary:`
 - 这个说明中改动的文件比较多，改动的代码也多，不能成为一个很好的说明，在这里暂时列出本说明中做出改变的文件，希望能起帮助。
 
-1. `./apis/auth.js`()
-2. `./controllers/auth.js`(*3.5)
-3. `./middleware/auth.js`(*3.4)
+1. `./apis/auth.js`(*3.5)
+2. `./controllers/auth.js`(*3.4)
+3. `./middleware/auth.js`(*3.6)
 4. `./server.js`(*3.3)
 5. `./config/config.env`(*3.2)
 6. `./models/User.js`(*3.1)
