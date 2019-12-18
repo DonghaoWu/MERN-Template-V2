@@ -483,7 +483,7 @@ $ npm run dev
 <img src="../assets/208.png" width=90%>
 </p>
 
-- 
+- *
 <p align="center">
 <img src="../assets/209.png" width=90%>
 </p>
@@ -493,7 +493,7 @@ $ npm run dev
 <img src="../assets/210.png" width=90%>
 </p>
 
-- 
+- *
 <p align="center">
 <img src="../assets/211.png" width=90%>
 </p>
