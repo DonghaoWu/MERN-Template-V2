@@ -3,12 +3,13 @@ const dotenv = require('dotenv');
 dotenv.config({ path: './config/config.env' });
 const PORT = process.env.PORT || 5000;
 
-//packages
+//packages & middleware
 const express = require('express');
 const morgan = require('morgan');
 const colors = require('colors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
+const errorHandler = require('./middleware/error');
 
 //Server
 const app = express();
@@ -29,10 +30,12 @@ Routes here!!
 */
 app.use('/api/v2', require('./apis'));
 
+//Error handler middleware
+app.use(errorHandler);
+
 const server = app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 
 //Handle unhandled promise rejection
-
 process.on('unhandledRejection', (err, promise) => {
     console.log(`Error: ${err.message}`.red.bold);
     server.close(() => process.exit(1));
