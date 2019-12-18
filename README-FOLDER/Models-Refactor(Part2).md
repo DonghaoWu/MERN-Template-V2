@@ -10,7 +10,6 @@
 - express (part1)
 - dotenv (part1)
 - morgan (part1)
-
 ```diff
 + mongoose (new)
 + colors (new)

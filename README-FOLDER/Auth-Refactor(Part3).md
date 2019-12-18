@@ -14,7 +14,6 @@
 - colors (part2)
 - jsonwebtoken (part2)
 - bcryptjs (part2)
-
 ```diff
 + cookie-parser(new)
 ```
