@@ -29,7 +29,7 @@
 - 3.5 Create Auth security Middleware (protect) and route middleware (getMe).
 - 3.6 Create a Role Authorization security Middleware (authorize).
 
-### `Step1: Add a new User model method,`
+### `Step1: Add a new User model method`
 #### `(*3.1)Location:./models/User.js`
 
 ```js
