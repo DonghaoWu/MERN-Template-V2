@@ -10,10 +10,13 @@
 - express (part1)
 - dotenv (part1)
 - morgan (part1)
-- mongoose (new)
-- colors (new)
-- jsonwebtoken (new)
-- bcryptjs (new)
+
+```diff
++ mongoose (new)
++ colors (new)
++ jsonwebtoken (new)
++ bcryptjs (new)
+```
 
 (Dev-dependencies)
 - nodemon (part1)

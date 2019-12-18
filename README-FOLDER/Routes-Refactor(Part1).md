@@ -7,9 +7,11 @@
 ### `Check Dependencies:`
 
 (Back-end)
-- express (new)
-- dotenv (new)
-- morgan (new)
+```diff
++ express (new)
++ dotenv (new)
++ morgan (new)
+```
 
 (Dev-dependencies)
 - nodemon (new)

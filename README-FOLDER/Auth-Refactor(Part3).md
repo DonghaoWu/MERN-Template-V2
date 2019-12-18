@@ -14,7 +14,10 @@
 - colors (part2)
 - jsonwebtoken (part2)
 - bcryptjs (part2)
-- cookie-parser(new)
+
+```diff
++ cookie-parser(new)
+```
 
 (Dev-dependencies)
 - nodemon (part1)
