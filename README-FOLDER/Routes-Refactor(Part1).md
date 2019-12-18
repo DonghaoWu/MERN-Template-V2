@@ -4,7 +4,7 @@
 
 ### `Summary`: In this documentation, we refactor backend route by using seperate controller files.
 
-### `Check Dependencies`
+### `Check Dependencies:`
 
 (Back-end)
 - express (new)
@@ -129,7 +129,7 @@ exports.deleteMessage = (req, res, next) => {
 ```
 
 ### `Step6: Import the methods to route`
-#### `Location:./apis/index.js`
+#### `(*1.5)Location:./apis/index.js`
 
 ```js
 const router = require('express').Router();
@@ -139,7 +139,7 @@ router.use('/auth', require('./auth'));
 module.exports = router;
 ```
 
-#### `(*1.5)Location:./apis/auth.js`
+#### `(*1.6)Location:./apis/auth.js`(Importan)
 
 ```js
 const router = require('express').Router();
@@ -159,12 +159,12 @@ router.route('/')
 
 ### `Comments:`
 
-- This is the most important step in this part.
+- `This is the most important step in this part.`
 - We import the methods from other files and use them in our route.
 - Current route is `/api/v2/auth`
 
 ### `Step7: Add a logger middleware (morgan)`
-#### `(*1.6)Location:./server.js`
+#### `(*1.7)Location:./server.js`
 
 ```js
 //Load env vars
@@ -195,7 +195,7 @@ app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 ### `Comments:`
 
 - Environment variables should be the very beginning of the file.
-- Route middlewares should be right between `const app = express();` and `app.use('/api/v2', require('./api'));`.
+- Middlewares usually are right between `const app = express();` and `app.use('/api/v2', require('./api'));`.
 - morgan is a logger dependency, it will show the details of each request.
 
 ### Step8 : TEST

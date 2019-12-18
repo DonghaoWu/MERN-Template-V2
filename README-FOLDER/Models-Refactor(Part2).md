@@ -1,10 +1,10 @@
 # MERN-Template-V2(part 2)
 
-## `Section: Backend`(Refactor backend database, User model and register route)
+## `Section: Backend`(Refactor User model and register route)
 
-### `Summary`: In this documentation, we refactor backend database, User model and register route.
+### `Summary`: In this documentation, we refactor User model and register route.
 
-### `Check Dependencies`
+### `Check Dependencies:`
 
 (Back-end)
 - express (part1)
@@ -57,7 +57,7 @@ const connectDB = async () => {
 module.exports = connectDB;
 ```
 ### `Comments:`
-- 在这里取消了使用try catch的方法进行错误处理。
+- 在这里取消了使用try catch的方法进行报错控制。
 
 ### `Step3: Change some code in server.js`
 #### `(*2.3)Location:./server.js`
@@ -114,7 +114,7 @@ const connectDB = require('./config/db');
 connectDB();
 ```
 
-- Add body parser middleware.(`An easy mistake!`)
+- Add body parser middleware.(`如果没有这一部，postman是不会接收到json的，这也是经常会遗忘的一步。`)
 
 ```js
 app.use(express.json());
@@ -130,7 +130,7 @@ process.on('unhandledRejection', (err, promise) => {
 })
 ```
 
-### `Step4: Refactor new model for User`
+### `Step4: Refactor new User model`
 #### `(*2.4)Location:./models/User.js`
 
 ```js
@@ -220,7 +220,7 @@ router.post('/register', register);
 module.exports = router;
 ```
 
-#### `(*2.7)Location:./controllers/auth.js`(注意这里把function拆开来跟V1不一样，相当于把function写成了middleware，注意现在是3参数)。
+#### `(*2.7)Location:./controllers/auth.js`(注意这里把function拆开来跟V1不一样，相当于把function写成了Route Middleware，注意现在是3参数)。
 
 ```js
 const User = require('../models/User');
