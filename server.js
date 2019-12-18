@@ -16,7 +16,6 @@ const app = express();
 //DB
 connectDB();
 
-
 //Middlewares
 app.use(express.json());
 app.use(cookieParser());
