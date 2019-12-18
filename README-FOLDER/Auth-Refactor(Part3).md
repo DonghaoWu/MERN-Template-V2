@@ -246,7 +246,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
     res
         .status(statusCode)
-        .cookie('token', token, options)
+        .cookie('token', token, options) // cookie-parser
         .json({
             success: true,
             token: token
