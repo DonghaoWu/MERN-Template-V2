@@ -116,7 +116,7 @@ const connectDB = require('./config/db');
 connectDB();
 ```
 
-- Add body parser middleware.(`如果没有这一部，postman是不会接收到json的，这也是经常会遗忘的一步。`)
+- Add body parser middleware.(`如果没有这一步，postman是不会接收到json的，这也是经常会遗忘的一步。`)
 
 ```js
 app.use(express.json());
@@ -222,7 +222,7 @@ router.post('/register', register);
 module.exports = router;
 ```
 
-#### `(*2.7)Location:./controllers/auth.js`(注意这里把function拆开来跟V1不一样，相当于把function写成了Route Middleware，注意现在是3参数)。
+#### `(*2.7)Location:./controllers/auth.js`(注意这里把function拆开来跟V1不一样，相当于把function写成了Route Middleware，而所有的middleware都是有3参数的：req，res，next)。
 
 ```js
 const User = require('../models/User');

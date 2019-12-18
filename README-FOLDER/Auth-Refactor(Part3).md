@@ -1,8 +1,8 @@
 # MERN-Template-V2(part 3)
 
-## `Section: Backend`(Refactor backend Authentication route) --- 练习使用 route middleware。
+## `Section: Backend`(Refactor backend Authentication route)。
 
-### `Summary`: In this documentation, we refactor authentication route.
+### `Summary`: In this documentation, we refactor authentication route. （--- 练习使用 Route middleware）
 
 ### `Check Dependencies`
 
@@ -23,8 +23,8 @@
 
 ### `Brief Contents & codes position`
 - 3.1 Add a new User model method, `Location:./models/User.js`
-- 3.2 Add login method, `Location:./controllers/auth.js`
-- 3.3 Bring login method to route, `Location:./apis/auth.js`
+- 3.2 Add login route middleware, `Location:./controllers/auth.js`
+- 3.3 Bring login route middleware to route, `Location:./apis/auth.js`
 
 - 3.4 Create a helper function to create token and store it in cookie.(4 steps)
 - 3.5 Create a Auth Protect Middleware (security).
@@ -98,7 +98,7 @@ module.exports = mongoose.model('User', UserSchema);
 - UserSchema.methods.getSignedJwtToken = () => {}
 ```
 
-### `Step2: Add login method`
+### `Step2: Add login route middleware`
 #### `Location:./controllers/auth.js`
 
 ```js
@@ -140,7 +140,7 @@ exports.login = async (req, res, next) => {
 - 注释部分包含了下一part的错误控制内容。
 - 实现：输入存在的用户和正确的密码，返回token。
 
-### `Step3: Bring login method to route`
+### `Step3: Bring login route middleware to route.`
 #### `Location:./apis/auth.js`
 
 ```js
@@ -156,7 +156,7 @@ router.post('/login', login)
 module.exports = router;
 ```
 
-### `Step4: Create a helper function to create token and store it in cookie`
+### `Step4: Create a helper function to create token and store it in cookie.`
 
 #### A. Add new package.
 - Install package.
@@ -164,6 +164,7 @@ module.exports = router;
 $ npm i cookie-parser
 ```
 
+- Import it.
 #### `(*3.2)Location:./server.js`
 ```js
 //Load env vars
@@ -178,12 +179,11 @@ const colors = require('colors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 
-//Apply
+//Server
 const app = express();
 
 //DB
 connectDB();
-
 
 //Middlewares
 app.use(express.json());
@@ -207,11 +207,13 @@ process.on('unhandledRejection', (err, promise) => {
 })
 
 ```
-
+- 加入以下代码：
 ```diff
 + const cookieParser = require('cookie-parser');
 + app.use(cookieParser());
 ```
+- 备注：加入了新的library后，可以实现把生成的token储存在cookies中。
+
 #### B.Add new environment variable
 #### `(*3.3)Location:./config/config.env`
 

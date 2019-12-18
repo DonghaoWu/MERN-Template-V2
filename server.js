@@ -10,7 +10,7 @@ const colors = require('colors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 
-//Apply
+//Server
 const app = express();
 
 //DB
