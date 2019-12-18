@@ -228,7 +228,7 @@ JWT_EXPIRE=...
 JWT_COOKIE_EXPIRE=...
 ```
 
-#### C.Create a custom function(`本章重点`)
+#### C.Create a custom helper function(`本章重点：生成token，生成cookie，返回token`)
 #### `Location:./controllers/auth.js`
 
 ```js
@@ -266,6 +266,8 @@ const sendTokenResponse = (user, statusCode, res) => {
 - 中间第C步的函数 `sendTokenResponse` 是本说明的重点.
 
 ### `Step5: Create a Auth Protect Middleware(security)`
+
+#### - 把这个route middleware放在route中，作用就是解析token，验证得出id的有效性，有效就放行到下一个中间件，没效就报错。
 
 #### A.Create a middleware method
 #### `Location:./middleware/auth.js`
