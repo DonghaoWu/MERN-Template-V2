@@ -474,21 +474,21 @@ $ npm run dev
 
 - Register a new user
 <p align="center">
-<img src="../assets/208.png" width=85%>
+<img src="../assets/208.png" width=90%>
 </p>
 <p align="center">
-<img src="../assets/209.png" width=85%>
+<img src="../assets/209.png" width=90%>
 </p>
 
 - Login the new user with the email and password, then get a token back.
 <p align="center">
-<img src="../assets/210.png" width=85%>
+<img src="../assets/210.png" width=90%>
 </p>
 <p align="center">
-<img src="../assets/211.png" width=85%>
+<img src="../assets/211.png" width=90%>
 </p>
 
 - In route '/api/v2/auth/me', use the token and protect middleware to get user's info.
 <p align="center">
-<img src="../assets/212.png" width=85%>
+<img src="../assets/212.png" width=90%>
 </p>

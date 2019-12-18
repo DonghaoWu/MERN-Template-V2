@@ -202,20 +202,20 @@ app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
 
 - Run command in git bash.
 <p align="center">
-<img src="../assets/201.png" width=85%>
+<img src="../assets/201.png" width=90%>
 </p>
 
 - Set up postman environment.
 <p align="center">
-<img src="../assets/202.png" width=85%>
+<img src="../assets/202.png" width=90%>
 </p>
 
 - Send a request then get the respond back.(Here just show one of four).
 <p align="center">
-<img src="../assets/203.png" width=85%>
+<img src="../assets/203.png" width=90%>
 </p>
 
 - morgan is working.
 <p align="center">
-<img src="../assets/204.png" width=85%>
+<img src="../assets/204.png" width=90%>
 </p>

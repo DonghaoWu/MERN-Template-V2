@@ -256,15 +256,15 @@ $ npm run dev
 
 - Set up header in Postman ----> content-type: Application/json.
 <p align="center">
-<img src="../assets/205.png" width=85%>
+<img src="../assets/205.png" width=90%>
 </p>
 
 - Edit the raw body, send the request and get token back.
 <p align="center">
-<img src="../assets/206.png" width=85%>
+<img src="../assets/206.png" width=90%>
 </p>
 
 - New user with encrypted password in Altas is created.
 <p align="center">
-<img src="../assets/207.png" width=85%>
+<img src="../assets/207.png" width=90%>
 </p>
