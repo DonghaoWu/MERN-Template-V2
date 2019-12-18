@@ -267,9 +267,9 @@ const sendTokenResponse = (user, statusCode, res) => {
 
 ### `Step5: Create a Auth Protect Middleware(security)`
 
-#### - 把这个route middleware放在route中，作用就是解析token，验证得出id的有效性，有效就放行到下一个中间件，没效就报错。
+#### - 把这个route middleware放在目标route中，作用就是解析token得到id，验证id的有效性，有效就放行到下一个中间件，没效就报错。
 
-#### A.Create a middleware method
+#### A. Create a middleware method
 #### `Location:./middleware/auth.js`
 
 ```js
@@ -301,7 +301,7 @@ exports.protect = async (req, res, next) => {
 }
 ```
 
-#### B.Create a new route （getMe）
+#### B. Create a new route method (middleware) （getMe）
 #### `(*3.4)Location:./controllers/auth.js`
 
 ```js
@@ -386,7 +386,7 @@ exports.getMe = async (req, res, next) => {
 }
 ```
 
-#### C.Import the route and middleware in api
+#### C. Import the route method and middleware in route
 #### `(*3.5)Location:./apis/auth.js`
 
 ```js
@@ -408,7 +408,7 @@ module.exports = router;
 
 ### `Comments:`
 
-- 写middleware必须注意两点，第一点是有可能改变req的代码，第二点是必须有`next()`.
+- 写middleware必须注意两点，第一点是经常需要改变req的代码，第二点是必须有`next()`.
 - 在这个设计流程中，经过`protect`中间件的route都会在`req`中取得user全部的信息，而protect中间件的主要作用是在解析token，然后寻找对应的user，如果有user就改变req，如果没有就报错。
 - 这个部分也是很重要，主要练习如何使用route middleware。
 
@@ -455,7 +455,7 @@ exports.authorize = (...roles) => {
 }
 ```
 ### `Comment:`
-- 在目前而言，还没有一个route用到这个middleware，常用的方法是：
+- 在目前而言，还没有一个route用到这个middleware，使用的方法是：
 ```js
 router.get('/someRoute', protect, authorize, someFunction);
 ```
@@ -467,9 +467,9 @@ router.get('/someRoute', protect, authorize, someFunction);
 1. `./models/User.js`(*3.1) - add schema, methods, hooks
 2. `./config/config.env`(*3.2) -- add 1 new variable
 3. `./server.js`(*3.3) -- import cookie-parser
-4. `./controllers/auth.js`(*3.4) -- add getMe route
+4. `./controllers/auth.js`(*3.4) -- add getMe route middleware
 5. `./middleware/auth.js`(*3.6) -- create 2 middlewares
-6. `./apis/auth.js`(*3.5) -- import 1 new route and 2 new middleware
+6. `./apis/auth.js`(*3.5) -- import 1 new route middleware and 2 new middleware
 
 ### Step7 : TEST
 
