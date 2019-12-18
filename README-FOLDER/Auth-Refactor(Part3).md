@@ -155,7 +155,7 @@ router.post('/login', login)
 module.exports = router;
 ```
 
-### `Step4: Create a helper function to create token and store it in cookie.`
+### `Step4: A helper function to create token and store it in cookie.`
 
 #### A. Add new package.
 - Install package.
@@ -264,7 +264,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
 - 中间第C步的函数 `sendTokenResponse` 是本说明的重点.
 
-#### `Step5: Create Auth security Middleware(protect) and route middleware(getMe).`
+### `Step5: Create Auth security Middleware(protect) and route middleware(getMe).`
 
 #### - 把这个route middleware放在目标route中，作用就是解析token得到id，验证id的有效性，有效就放行到下一个中间件，没效就报错。
 
