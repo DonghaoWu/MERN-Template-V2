@@ -25,10 +25,9 @@
 - 3.1 Add a new User model method, `Location:./models/User.js`
 - 3.2 Add login route middleware, `Location:./controllers/auth.js`
 - 3.3 Bring login route middleware to route, `Location:./apis/auth.js`
-
 - 3.4 Create a helper function to create token and store it in cookie.(4 steps)
-- 3.5 Create a Auth Protect Middleware (security).
-- 3.6 Create a Role Authorization Middleware (security).
+- 3.5 Create a Auth security Middleware (protect) and a route middleware (getMe)..
+- 3.6 Create a Role Authorization security Middleware (authorize).
 
 ### `Step1: Add a new User model method,`
 #### `(*3.1)Location:./models/User.js`
@@ -265,7 +264,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
 - 中间第C步的函数 `sendTokenResponse` 是本说明的重点.
 
-### `Step5: Create a Auth Protect Middleware(security)`
+### `Step5: Create a Auth security Middleware (protect) and a route middleware (getMe).`
 
 #### - 把这个route middleware放在目标route中，作用就是解析token得到id，验证id的有效性，有效就放行到下一个中间件，没效就报错。
 
@@ -412,8 +411,8 @@ module.exports = router;
 - 在这个设计流程中，经过`protect`中间件的route都会在`req`中取得user全部的信息，而protect中间件的主要作用是在解析token，然后寻找对应的user，如果有user就改变req，如果没有就报错。
 - 这个部分也是很重要，主要练习如何使用route middleware。
 
-### `Step6: Create a Role Authorization Middleware (security)`
-#### `(*3.6)Location:./middleware/auth.js`
+### `Step6: Create a Role Authorization security Middleware (authorize).`
+#### `(*3.6) Location:./middleware/auth.js`
 
 ```js
 const User = require('../models/User');
