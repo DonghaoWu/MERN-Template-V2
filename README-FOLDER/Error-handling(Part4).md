@@ -1,8 +1,8 @@
-# MERN-Template-V2(part 3)
+# MERN-Template-V2(part 4)
 
-## `Section: Backend`(Refactor backend Authentication route)。
+## `Section: Backend`(Refactor backend with Error handling)。
 
-### `Summary`: In this documentation, we refactor authentication route. （--- 练习使用 Route middleware）
+### `Summary`: In this documentation, we refactor backend with Error handling. 
 
 ### `Check Dependencies`
 
