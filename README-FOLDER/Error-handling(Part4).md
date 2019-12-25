@@ -2,7 +2,7 @@
 
 ## `Section: Backend`(Refactor backend with Error handling)。
 
-### `Summary`: In this documentation, we refactor backend with Error handling. 
+### `Summary`: In this documentation, we refactor backend with Error handling(处理显式与隐式错误控制). 
 
 ### `Check Dependencies`
 
@@ -14,144 +14,208 @@
 - colors (part2)
 - jsonwebtoken (part2)
 - bcryptjs (part2)
-- cookie-parser
+- cookie-parser (part3)
 
 (Dev-dependencies)
 - nodemon (part1)
 
-### `Brief Contents & codes position.`
-- 3.1 Add a new User model method, `Location:./models/User.js`
-- 3.2 Add login route middleware, `Location:./controllers/auth.js`
-- 3.3 Bring login route middleware to route, `Location:./apis/auth.js`
-- 3.4 Create a helper function to generate token, store it in cookie, and return it(4 steps)
-- 3.5 Create Auth security Middleware (protect) and route middleware (getMe).
-- 3.6 Create a Role Authorization security Middleware (authorize).
-
-### `Step1: Add a new User model method`
-#### `(*3.1)Location:./models/User.js`
-
+### Designing path:
+1. 在这里实际上是要写一个错误控制的中间件，放在server.js代码中route之后，用来捕捉所有API request过程中抛出的错误。
+2. 中间件的设置，主要是用来处理4大类错误信息，第一类是特定错误，第二类为可归类错误，第三类为未定义错误，第四类为其他错误（即服务器错误）。其中第三类的定义需要后面再定义；
+3. 看以下代码
 ```js
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken')
-
-const UserSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Please add a name'],
-    },
-    email: {
-        type: String,
-        required: [true, 'Please add an email'],
-        unique: true,
-        match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Please add a valid email'
-        ]
-    },
-    role: {
-        type: String,
-        enum: ['user', 'publisher'],
-        default: 'user'
-    },
-    password: {
-        type: String,
-        required: [true, 'Please add a password'],
-        minlength: 6,
-        select: false,
-    },
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
-    createdAt: {
-        type: Date,
-        default: Date.now,
+//第一类：
+    if (!email || !password) {
+        return next(new ErrorResponse('Please provide email and password', 400));
     }
-});
-
-// Encrypt password using bcrypt
-UserSchema.pre('save', async function (next) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-});
-
-// Sign JWT and return
-UserSchema.methods.getSignedJwtToken = function() {
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE
-    })
-}
-
-// Match user entered password to hashed password in database
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-    const result = await bcrypt.compare(enteredPassword, this.password);
-    return result;
-}
-
-module.exports = mongoose.model('User', UserSchema);
+    if (!isMatch) {
+        return next(new ErrorResponse('Invalid credentials 2', 401));
+    }
 ```
-
-```diff
-+ 重要的事情讲三遍，在mongoDB的model中不能用 arrow function这是很难发现的bug，需要多留意。
-- UserSchema.methods.getSignedJwtToken = () => {}
-```
-
-### `Step2: Add login route middleware`
-#### `Location:./controllers/auth.js`
 
 ```js
-// @desc       Login user
-// @route      Post /api/v2/auth/register
-// @access     Public
-exports.login = async (req, res, next) => {
-    const { email, password } = req.body;
+//第二类：
+    // Mongoose Bad ObjectId
+    if (err.name === 'CastError') {
+        const message = `Resource not found with id of ${err.value}`;
+        error = new ErrorResponse(message, 404); // redefine
+    }
 
-    //Validate email & password
-    // if (!email || !password) {
-    //     return next(new ErrorResponse('Please provide an email and password', 400))
-    // }
+    // Mongoose Duplicate field key (重名，非unique)
+    if (err.code === 11000) {
+        const message = `Duplicate field value entered`;
+        error = new ErrorResponse(message, 400); //redefine
+    }
 
-    //Check for user
-    const user = await User.findOne({ email }).select('+password');
+    // Mongoose Validation error
+    if (err.name === 'ValidationError') {
+        const message = Object.values(err.errors).map(val => val.message);
+        error = new ErrorResponse(message, 400); // redefine
+    }
+```
 
-    // if (!user) {
-    //     return next(new ErrorResponse('Invalid credentials', 401))
-    // }
+```js
+//第三类：
+    let error = {};
+    error.message = err.message;
+    error.statusCode = err.statusCode;
+```
 
-    //Check if password matched
-    const isMatch = await user.matchPassword(password);
+```js
+//第四类：
+    error.message = 'Server Error';
+    error.statusCode = 500;
+```
 
-    // if (!isMatch) {
-    //     return next(new ErrorResponse('Invalid credentials', 401))
-    // }
+### `Brief Contents & codes position.`
+- 4.1 Create a custom error class, `Location:./utils/errorResponse.js`
+- 4.2 Create a custom error middleware , `Location:./middleware/error.js`
+- 4.3 Add errorHandler middleware to server, `Location:./server.js`
 
-    //Create token
-    const token = user.getSignedJwtToken();
+- 4.4 Create a helper function to generate token, store it in cookie, and return it(4 steps)
+- 4.5 Create Auth security Middleware (protect) and route middleware (getMe).
+- 4.6 Create a Role Authorization security Middleware (authorize).
 
-    res.status(200).json({
-        success:true,
-        token: token
-    })
+### `Step1: Create a custom error class`
+#### `(*4.1)Location:./utils/errorResponse.js`
+
+```js
+// 注意它这里继承的是Error类，这样就可以保持一致格式。
+class ErrorResponse extends Error {
+    constructor(message, statusCode) {
+        super(message);
+        this.statusCode = statusCode;
+    }
 }
+
+module.exports = ErrorResponse;
 ```
 ### `Comments:`
-- 注释部分包含了下一part的错误控制内容。
-- 实现：输入存在的用户和正确的密码，返回token。
+- 这里代码的内容是生成一个error类，且继承本身的Error类的所有属性。
+- 这个类的作用在于处理已知错误类。
 
-### `Step3: Bring login route middleware to route.`
-#### `Location:./apis/auth.js`
+### `Step2: Create a custom error middleware`
+#### `Location:./middleware/error.js`
 
 ```js
-const router = require('express').Router();
-const {
-    register,
-    login
-} = require('../controllers/auth')
+const ErrorResponse = require('../utils/errorResponse');
 
-router.post('/register', register);
-router.post('/login', login)
+const errorHandler = (err, req, res, next) => {
+    console.log(err);
+    // copy the err object,if the error is from catch, redefine it in the if statement,
+    // if the error is not from catch, it only has two property, one is message, one is statusCode
+    let error = {};
 
-module.exports = router;
+    error.message = err.message; //necessary? Yes, when the error is from errorResponse.
+    error.statusCode = err.statusCode;
+
+    // Mongoose Bad ObjectId
+    if (err.name === 'CastError') {
+        const message = `Resource not found with id of ${err.value}`;
+        error = new ErrorResponse(message, 404); // redefine
+    }
+
+    // Mongoose Duplicate field key (重名，非unique)
+    if (err.code === 11000) {
+        const message = `Duplicate field value entered`;
+        error = new ErrorResponse(message, 400); //redefine
+    }
+
+    // Mongoose Validation error
+    if (err.name === 'ValidatorError') {
+        const message = Object.values(err.errors).map(val => val.message);
+        error = new ErrorResponse(message, 400); // redefine
+    }
+
+    res.status(error.statusCode || 500).json({
+        success: false,
+        error: error.message || 'Server Error'
+    });
+}
+
+module.exports = errorHandler;
 ```
+
+### `Comments:`
+- 这个中间件设置的很巧妙，先看这3句代码预处理第一类错误（特定已知错误），还有第三类错误（未定义错误）的预处理：
+```js
+//在这里，中间件的对第一类错误的假定预处理，如果是第一类错误，直接赋值而不用进入之后的if语句
+let error = { ...err };
+error.message = err.message;
+error.statusCode = err.statusCode;
+```
+- 之后的语句是处理第二类错误（已知可归类错误），在这里特指从model中监测到的错误，代码中实现，如果碰到合适的第三类错误可进行重定义为第二类的功能。
+- 最后处理的是第四类错误。
+- 在这里，对第三类错误还是有好奇成分在的，作为漏网之鱼，第三类错误是否有错误代码呢（这里应该查看错误类的结构，初步看到是没有的），如果没有，经过层层过滤，到最后是不是错误代码被标为500？
+
+
+### `Step3: Add errorHandler middleware to server.`
+#### `Location:./server.js`
+
+```js
+//Load env vars
+const dotenv = require('dotenv');
+dotenv.config({ path: './config/config.env' });
+const PORT = process.env.PORT || 5000;
+
+//packages & middleware
+const express = require('express');
+const morgan = require('morgan');
+const colors = require('colors');
+const cookieParser = require('cookie-parser');
+const connectDB = require('./config/db');
+const errorHandler = require('./middleware/error');
+
+//Server
+const app = express();
+
+//DB
+connectDB();
+
+//Middlewares
+app.use(express.json());
+app.use(cookieParser());
+
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
+
+/*
+Routes here!!
+*/
+app.use('/api/v2', require('./apis'));
+
+//Error handler middleware
+app.use(errorHandler);
+
+const server = app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
+
+//Handle unhandled promise rejection
+process.on('unhandledRejection', (err, promise) => {
+    console.log(`Error: ${err.message}`.red.bold);
+    server.close(() => process.exit(1));
+})
+```
+
+### `Comments:`
+- 注意中间件的位置，必须在route之后：
+```js
+/*
+Routes here!!
+*/
+app.use('/api/v2', require('./apis'));
+
+//Error handler middleware
+app.use(errorHandler);
+```
+
+
+
+
+
+
+
+
 
 ### `Step4: Create a helper function to generate token, store it in cookie, and return it.`
 

@@ -1,10 +1,10 @@
 const ErrorResponse = require('../utils/errorResponse');
 
 const errorHandler = (err, req, res, next) => {
-    console.log(err);
+    console.log('==========>', err);
     // copy the err object,if the error is from catch, redefine it in the if statement,
     // if the error is not from catch, it only has two property, one is message, one is statusCode
-    let error = { ...err };
+    let error = {};
 
     error.message = err.message; //necessary? Yes, when the error is from ErrorResponse.
     error.statusCode = err.statusCode;
@@ -22,7 +22,7 @@ const errorHandler = (err, req, res, next) => {
     }
 
     // Mongoose Validation error
-    if (err.name === 'ValidatorError') {
+    if (err.name === 'ValidationError') {
         const message = Object.values(err.errors).map(val => val.message);
         error = new ErrorResponse(message, 400); // redefine
     }
