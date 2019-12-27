@@ -72,8 +72,8 @@
 - 4.2 Create a custom error middleware , `Location:./middleware/error.js`
 - 4.3 Add errorHandler middleware to server, `Location:./server.js`
 
-- 4.4 Create a helper function to generate token, store it in cookie, and return it(4 steps)
-- 4.5 Create Auth security Middleware (protect) and route middleware (getMe).
+- 4.4 Add error creators in route middlewares.`Location:./middlesware/auth.js`
+- 4.5 Add error creators in route methods.`Location:./controllers/auth.js`
 - 4.6 Create a Role Authorization security Middleware (authorize).
 
 ### `Step1: Create a custom error class`
@@ -95,7 +95,7 @@ module.exports = ErrorResponse;
 - 这个类的作用在于生成定制错误类。
 
 ### `Step2: Create a custom error middleware`
-#### `Location:./middleware/error.js`
+#### `（*4.2）Location:./middleware/error.js`
 
 ```js
 const ErrorResponse = require('../utils/errorResponse');
@@ -152,7 +152,7 @@ error.statusCode = err.statusCode;
 
 
 ### `Step3: Add errorHandler middleware to server.`
-#### `Location:./server.js`
+#### `（*4.3）Location:./server.js`
 
 ```js
 //Load env vars
@@ -211,276 +211,14 @@ app.use('/api/v2', require('./apis'));
 app.use(errorHandler);
 ```
 
-
-
-
-
-
-
-
-
-### `Step4: Create a helper function to generate token, store it in cookie, and return it.`
-
-#### A. Add new package.
-- Install package.
-```
-$ npm i cookie-parser
-```
-
-- Import it.
-#### `(*3.2)Location:./server.js`
-```js
-//Load env vars
-const dotenv = require('dotenv');
-dotenv.config({ path: './config/config.env' });
-const PORT = process.env.PORT || 5000;
-
-//packages
-const express = require('express');
-const morgan = require('morgan');
-const colors = require('colors');
-const cookieParser = require('cookie-parser');
-const connectDB = require('./config/db');
-
-//Server
-const app = express();
-
-//DB
-connectDB();
-
-//Middlewares
-app.use(express.json());
-app.use(cookieParser());
-
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-}
-
-/*
-Routes here!!
-*/
-app.use('/api/v2', require('./apis'));
-
-const server = app.listen(PORT, () => console.log(`server is listening on port ${PORT} ===>`));
-
-//Handle unhandled promise rejection
-process.on('unhandledRejection', (err, promise) => {
-    console.log(`Error: ${err.message}`.red.bold);
-    server.close(() => process.exit(1));
-})
-
-```
-- 加入以下代码：
-```diff
-+ const cookieParser = require('cookie-parser');
-+ app.use(cookieParser());
-```
-- 备注：加入了新的library后，可以实现把生成的token储存在cookies中。
-
-#### B.Add new environment variable
-#### `(*3.3)Location:./config/config.env`
-
-```js
-NODE_ENV=development
-PORT=5000
-
-MONGO_URI=mongodb+srv:...
-
-JWT_SECRET=...
-JWT_EXPIRE=...
-JWT_COOKIE_EXPIRE=...
-```
-
-#### C.Create a custom helper function(`本章重点：生成token，生成cookie，返回token`)
-#### `Location:./controllers/auth.js`
-
-```js
-const sendTokenResponse = (user, statusCode, res) => {
-    const token = user.getSignedJwtToken();
-    const options = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-        httpOnly: true
-    }
-
-    //For production
-    if (process.env.NODE_ENV === 'production') {
-        options.secure = true;
-    }
-
-    res
-        .status(statusCode)
-        .cookie('token', token, options) // cookie-parser
-        .json({
-            success: true,
-            token: token
-        });
-}
-```
-
-#### D.Refactor register and login methods
-#### `Location:./controllers/auth.js`
-
-```js
-//See PartB step5
-```
-
-### `Comments:`
-
-- 中间第C步的函数 `sendTokenResponse` 是本说明的重点.
-
-### `Step5: Create Auth security Middleware (protect) and route middleware (getMe).`
-
-#### - 把这个route middleware放在目标route中，作用就是解析token得到id，验证id的有效性，有效就放行到下一个中间件，没效就报错。
-
-#### A. Create a middleware method
-#### `Location:./middleware/auth.js`
+### `Step4: Add error creators in middlewares.`
+#### `(*4.4)Location:./middleware/auth.js`
 
 ```js
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const ErrorResponse = require('../utils/errorResponse');
 
-exports.protect = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-
-  // else if (req.cookies.token) {
-  //   token = req.cookies.token
-  // }
-
-  // Make sure token exists
-  // if (!token) {
-  //   return res.status(400).json({ success: false })
-  // }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
-    next();
-  } catch (err) {
-    return res.status(400).json({ success: false })
-  }
-}
-```
-
-#### B. Create a new route method (middleware) （getMe）
-#### `(*3.4)Location:./controllers/auth.js`
-
-```js
-const User = require('../models/User');
-
-const sendTokenResponse = (user, statusCode, res) => {
-    const token = user.getSignedJwtToken();
-    const options = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-        httpOnly: true
-    }
-
-    //For production
-    if (process.env.NODE_ENV === 'production') {
-        //https
-        options.secure = true;
-    }
-
-    res
-        .status(statusCode)
-        .cookie('token', token, options) // cookie-parser
-        .json({
-            success: true,
-            token: token
-        });
-}
-
-// @desc       Register user
-// @route      Post /api/v2/auth/register
-// @access     Public
-exports.register = async (req, res, next) => {
-    const { name, email, password, role } = req.body;
-
-    const user = await User.create({
-        name,
-        email,
-        password,
-        role
-    });
-
-    sendTokenResponse(user, 200, res)
-}
-
-// @desc       Login user
-// @route      Post /api/v2/auth/register
-// @access     Public
-exports.login = async (req, res, next) => {
-    const { email, password } = req.body;
-
-    //Validate email & password
-    // if (!email || !password) {
-    //     return next(new ErrorResponse('Please provide an email and password', 400))
-    // }
-
-    //Check for user
-    const user = await User.findOne({ email }).select('+password');
-
-    // if (!user) {
-    //     return next(new ErrorResponse('Invalid credentials', 401))
-    // }
-
-    //Check if password matched
-    const isMatch = await user.matchPassword(password);
-
-    // if (!isMatch) {
-    //     return next(new ErrorResponse('Invalid credentials', 401))
-    // }
-
-    //Create token
-    sendTokenResponse(user, 200, res)
-}
-
-// @desc       Get current logged in user
-// @route      Post /api/v2/auth/me
-// @access     Private
-exports.getMe = async (req, res, next) => {
-    const user = await User.findById(req.user.id);
-    res.status(200).json({
-        success: true,
-        data: user
-    });
-}
-```
-
-#### C. Import the route method and middleware in route
-#### `(*3.5)Location:./apis/auth.js`
-
-```js
-const router = require('express').Router();
-const {
-    register,
-    login,
-    getMe
-} = require('../controllers/auth');
-
-const { protect } = require('../middleware/auth')
-
-router.post('/register', register);
-router.post('/login', login);
-router.get('/me', protect, getMe)
-
-module.exports = router;
-```
-
-### `Comments:`
-
-- 写middleware必须注意两点，第一点是经常需要改变req的内容，第二点是必须有`next()`.
-- 在这个设计流程中，经过`protect`中间件的route都会在`req`中取得user全部的信息，而protect中间件的主要作用是在解析token，然后寻找对应的user，如果有user就改变req的内容，如果没有就报错。
-- 这个部分很重要，主要练习如何创造和使用route middleware。
-
-### `Step6: Create a Role Authorization security Middleware (authorize).`
-#### `(*3.6) Location:./middleware/auth.js`
-
-```js
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 
 //Check if the token is valid
 exports.protect = async (req, res, next) => {
@@ -494,16 +232,17 @@ exports.protect = async (req, res, next) => {
   // }
 
   // Make sure token exists
-  // if (!token) {
-  //   return res.status(400).json({ success: false })
-  // }
+  if (!token) {
+    return next(new ErrorResponse('Not authorize to access this route 1', 401));
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id);
-    next();
+    next(); //route middleware
+
   } catch (err) {
-    return res.status(401).json({ success: false })
+    return next(new ErrorResponse('Not authorize to access this route 2', 401)); // Catch error and stop.
   }
 }
 
@@ -511,30 +250,133 @@ exports.protect = async (req, res, next) => {
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ success: false });
+      return next(new ErrorResponse(`User role ${req.user.role} is not authorized to access this route`, 403));
     }
     next();
   }
 }
 ```
-### `Comment:`
-- 在目前而言，还没有一个route用到这个middleware，实际使用的方法是：
+### `Comments:`
+
+- 在middleware中增加的error creator一般都是第一类错误，即特定已知错误.
+- 写第一类错误的代码要注意格式，除了`new`关键词以外，还要注意因为本身是middleware而要添加的`next`关键词，当然还有打断流程关键词`return`,如：
 ```js
-router.get('/someRoute', protect, authorize, someFunction);
+    return next(new ErrorResponse('Not authorize to access this route 1', 401));
 ```
-- 以上middleware的顺序说明了，`protect middleware`取得user的信息这个步骤是必要的，因为后面的`authorize middleware`会用到那里面的信息。
 
-### `Summary:`
-- 这个说明中改动的文件比较多，改动的代码也多，不能成为一个很好的说明，在这里暂时列出本说明中做出改变的文件，希望能起帮助。
+### `Step5: Add error creators in route methods.`
+#### `(*4.5)Location:./controllers/auth.js`
 
-1. `./models/User.js`(*3.1) - add schema, methods, hooks
-2. `./config/config.env`(*3.2) -- add 1 new variable
-3. `./server.js`(*3.3) -- import cookie-parser
-4. `./controllers/auth.js`(*3.4) -- add getMe route middleware
-5. `./middleware/auth.js`(*3.6) -- create 2 middlewares
-6. `./apis/auth.js`(*3.5) -- import 1 new route middleware and 2 new middleware
+```js
+const User = require('../models/User');
+const ErrorResponse = require('../utils/errorResponse');
 
-### Step7 : TEST
+const sendTokenResponse = (user, statusCode, res) => {
+    const token = user.getSignedJwtToken();
+    const options = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+        httpOnly: true
+    }
+
+    //For production
+    if (process.env.NODE_ENV === 'production') {
+        // for https
+        options.secure = true;
+    }
+
+    res
+        .status(statusCode)
+        .cookie('token', token, options)
+        .json({
+            success: true,
+            token: token
+        });
+}
+
+// @desc       Register user
+// @route      Post /api/v2/auth/register
+// @access     Public
+exports.register = async (req, res, next) => {
+    try {
+        const { name, email, password, role } = req.body;
+
+        const user = await User.create({
+            name,
+            email,
+            password,
+            role
+        });
+        sendTokenResponse(user, 200, res);
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Login user
+// @route      Post /api/v2/auth/register
+// @access     Public
+exports.login = async (req, res, next) => {
+    try {
+        // Validate email & password
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return next(new ErrorResponse('Please provide email and password', 400));
+        }
+
+        //Check for user
+        const user = await User.findOne({ email }).select('+password');
+        if (!user) {
+            return next(new ErrorResponse('Invalid credentials 1', 401));
+        }
+
+        //Check if password matches (model method)
+        const isMatch = await user.matchPassword(password);
+        if (!isMatch) {
+            return next(new ErrorResponse('Invalid credentials 2', 401));
+        }
+        //Create token
+        sendTokenResponse(user, 200, res);
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Get current logged in user
+// @route      Post /api/v2/auth/me
+// @access     Private
+exports.getMe = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+```
+
+### `Comments:`
+
+- 这里写的是route 的error creator，跟milldeware中最大的不同是这里还需要包含第二类错误的代码。
+- 这里的第一类错误都是特指自定义的已知错误，如
+```js
+        if (!isMatch) {
+            return next(new ErrorResponse('Invalid credentials 2', 401));
+        }
+```
+- 这里的第二类错误都在catch中处理，如
+```js
+catch (err) {
+        next(err);
+    }
+```
+
+### Step6 : TEST
 
 - Run command in bash.
 ```bash
