@@ -20,7 +20,7 @@
 - nodemon (part1)
 
 ### Designing path:
-1. 在这里实际上是要写一个错误控制的中间件，放在server.js代码中route之后，用来捕捉所有API request过程中抛出的错误。
+1. 在这里实际上是要先写一个定制error类，放在错误控制的中间件，中间件放在server.js代码中route之后，用来捕捉所有API request过程中抛出的错误。
 2. 中间件的设置，主要是用来处理4大类错误信息，第一类是特定错误，第二类为可归类错误，第三类为未定义错误，第四类为其他错误（即服务器错误）。其中第三类的定义需要后面再定义；
 3. 看以下代码
 ```js
@@ -74,7 +74,6 @@
 
 - 4.4 Add error creators in route middlewares.`Location:./middlesware/auth.js`
 - 4.5 Add error creators in route methods.`Location:./controllers/auth.js`
-- 4.6 Create a Role Authorization security Middleware (authorize).
 
 ### `Step1: Create a custom error class`
 #### `(*4.1)Location:./utils/errorResponse.js`
@@ -369,7 +368,7 @@ exports.getMe = async (req, res, next) => {
             return next(new ErrorResponse('Invalid credentials 2', 401));
         }
 ```
-- 这里的第二类错误都在catch中处理，如
+- 这里的第二类错误都在catch中处理，也就是来自`await`过程的错误，如
 ```js
 catch (err) {
         next(err);
@@ -378,32 +377,50 @@ catch (err) {
 
 ### Step6 : TEST
 
-- Run command in bash.
-```bash
-$ npm run dev
-```
-
-- Register a new user
+- Register without some required field.
 <p align="center">
-<img src="../assets/208.png" width=90%>
+<img src="../assets/213.png" width=90%>
 </p>
 
-- ---------------------------------------
+- Register without short password.
 <p align="center">
-<img src="../assets/209.png" width=90%>
+<img src="../assets/214.png" width=90%>
 </p>
 
-- Login the new user with the email and password, then get a token back.
+- Register without wrong format email.
 <p align="center">
-<img src="../assets/210.png" width=90%>
+<img src="../assets/215.png" width=90%>
 </p>
 
-- ---------------------------------------
+- Register without duplicate email.
 <p align="center">
-<img src="../assets/211.png" width=90%>
+<img src="../assets/215.png" width=90%>
 </p>
 
-- In route '/api/v2/auth/me', use the token and protect middleware to get user's info.
+- Login without some required field.
 <p align="center">
-<img src="../assets/212.png" width=90%>
+<img src="../assets/216.png" width=90%>
 </p>
+
+- Login with email which is not existed.
+<p align="center">
+<img src="../assets/217.png" width=90%>
+</p>
+
+- Login with wrong password.
+<p align="center">
+<img src="../assets/218.png" width=90%>
+</p>
+
+- Send request with no token.
+<p align="center">
+<img src="../assets/219.png" width=90%>
+</p>
+
+- Send request with invalid token.
+<p align="center">
+<img src="../assets/220.png" width=90%>
+</p>
+
+
+
