@@ -91,8 +91,8 @@ class ErrorResponse extends Error {
 module.exports = ErrorResponse;
 ```
 ### `Comments:`
-- 这里代码的内容是生成一个error类，且继承本身的Error类的所有属性。
-- 这个类的作用在于处理已知错误类。
+- 这里代码的内容是生成一个error类，且继承本身的Error类的所有属性，同时增加一个新属性`statusCode`。
+- 这个类的作用在于生成定制错误类。
 
 ### `Step2: Create a custom error middleware`
 #### `Location:./middleware/error.js`
@@ -106,7 +106,7 @@ const errorHandler = (err, req, res, next) => {
     // if the error is not from catch, it only has two property, one is message, one is statusCode
     let error = {};
 
-    error.message = err.message; //necessary? Yes, when the error is from errorResponse.
+    error.message = err.message; //necessary? Yes, when the error is from errorResponse（第一类）.
     error.statusCode = err.statusCode;
 
     // Mongoose Bad ObjectId
@@ -138,15 +138,17 @@ module.exports = errorHandler;
 
 ### `Comments:`
 - 这个中间件设置的很巧妙，先看这3句代码预处理第一类错误（特定已知错误），还有第三类错误（未定义错误）的预处理：
+
 ```js
 //在这里，中间件的对第一类错误的假定预处理，如果是第一类错误，直接赋值而不用进入之后的if语句
 let error = { ...err };
 error.message = err.message;
 error.statusCode = err.statusCode;
 ```
-- 之后的语句是处理第二类错误（已知可归类错误），在这里特指从model中监测到的错误，代码中实现，如果碰到合适的第三类错误可进行重定义为第二类的功能。
+
+- 之后的语句是处理第二类错误（已知可归类错误），在这里特指从Mongo model中监测到的错误，代码中实现了如果碰到合适的第三类错误可进行重定义为第二类的功能。
 - 最后处理的是第四类错误。
-- 在这里，对第三类错误还是有好奇成分在的，作为漏网之鱼，第三类错误是否有错误代码呢（这里应该查看错误类的结构，初步看到是没有的），如果没有，经过层层过滤，到最后是不是错误代码被标为500？
+- 在这里，对第三类错误还是有好奇成分在的，作为漏网之鱼，第三类错误是否有错误代码（`statusCode`）呢（这里应该查看错误类的结构，初步看到是没有的），如果没有，经过层层过滤，到最后可能剩下的第三类是不是错误代码被标为500？（在这里需要重新考究是不是设计思路问题）。
 
 
 ### `Step3: Add errorHandler middleware to server.`
