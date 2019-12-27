@@ -1,7 +1,7 @@
 const ErrorResponse = require('../utils/errorResponse');
 
 const errorHandler = (err, req, res, next) => {
-    console.log('==========>', err);
+    // console.log('==========>', err);
     // copy the err object,if the error is from catch, redefine it in the if statement,
     // if the error is not from catch, it only has two property, one is message, one is statusCode
     let error = {};

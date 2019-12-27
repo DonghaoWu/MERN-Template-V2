@@ -20,9 +20,10 @@
 - nodemon (part1)
 
 ### Designing path:
-1. 在这里实际上是要先写一个定制error类，放在错误控制的中间件，中间件放在server.js代码中route之后，用来捕捉所有API request过程中抛出的错误。
-2. 中间件的设置，主要是用来处理4大类错误信息，第一类是特定错误，第二类为可归类错误，第三类为未定义错误，第四类为其他错误（即服务器错误）。其中第三类的定义需要后面再定义；
-3. 看以下代码
+1. 做这个error handling middleware的目的在于更好的控制和分析错误，同时把错误信息整理成我们定制的格式以`json`的形式回传到客户端。
+2. 在这里实际上是要先写一个定制error类，放在错误控制的中间件，中间件放在server.js代码中route之后，用来捕捉所有API request过程中抛出的错误。
+3. 中间件的设置，主要是用来处理4大类错误信息，第一类是特定错误，第二类为可归类错误，第三类为未定义错误，第四类为其他错误（即服务器错误）。其中第三类的定义需要后面再定义；
+4. 看以下代码
 ```js
 //第一类：
     if (!email || !password) {
@@ -394,32 +395,32 @@ catch (err) {
 
 - Register without duplicate email.
 <p align="center">
-<img src="../assets/215.png" width=90%>
+<img src="../assets/216.png" width=90%>
 </p>
 
 - Login without some required field.
 <p align="center">
-<img src="../assets/216.png" width=90%>
+<img src="../assets/217.png" width=90%>
 </p>
 
 - Login with email which is not existed.
 <p align="center">
-<img src="../assets/217.png" width=90%>
+<img src="../assets/218.png" width=90%>
 </p>
 
 - Login with wrong password.
 <p align="center">
-<img src="../assets/218.png" width=90%>
+<img src="../assets/219.png" width=90%>
 </p>
 
 - Send request with no token.
 <p align="center">
-<img src="../assets/219.png" width=90%>
+<img src="../assets/220.png" width=90%>
 </p>
 
 - Send request with invalid token.
 <p align="center">
-<img src="../assets/220.png" width=90%>
+<img src="../assets/221.png" width=90%>
 </p>
 
 
