@@ -383,17 +383,17 @@ catch (err) {
 <img src="../assets/213.png" width=90%>
 </p>
 
-- Register without short password.
+- Register with short password.
 <p align="center">
 <img src="../assets/214.png" width=90%>
 </p>
 
-- Register without wrong format email.
+- Register with wrong format email.
 <p align="center">
 <img src="../assets/215.png" width=90%>
 </p>
 
-- Register without duplicate email.
+- Register with duplicate email.
 <p align="center">
 <img src="../assets/216.png" width=90%>
 </p>
