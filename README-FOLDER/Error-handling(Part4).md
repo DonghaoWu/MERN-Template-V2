@@ -408,7 +408,7 @@ catch (err) {
 <img src="../assets/218.png" width=90%>
 </p>
 
-- Login with wrong password.
+- Login with a wrong password.
 <p align="center">
 <img src="../assets/219.png" width=90%>
 </p>
