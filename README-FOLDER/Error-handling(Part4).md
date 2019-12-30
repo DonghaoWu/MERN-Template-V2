@@ -403,7 +403,7 @@ catch (err) {
 <img src="../assets/217.png" width=90%>
 </p>
 
-- Login with email which is not existed.
+- Login with email which is not existed in database.
 <p align="center">
 <img src="../assets/218.png" width=90%>
 </p>
