@@ -413,7 +413,7 @@ catch (err) {
 <img src="../assets/219.png" width=90%>
 </p>
 
-- Send request with no token.
+- Send a request without token.
 <p align="center">
 <img src="../assets/220.png" width=90%>
 </p>
