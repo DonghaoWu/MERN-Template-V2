@@ -21,9 +21,9 @@
 - nodemon (part1)
 
 ### `Brief Contents & codes position`
-- 2.1 Add new variables in config.env, `Location:./config/config.env`
+- 2.1 Add Mongo and JWT variables in config.env, `Location:./config/config.env`
 - 2.2 Change code in db configuration, `Location:./config/db.js`
-- 2.3 Change some code in server.js, `Location:./server.js`
+- 2.3 Add DB code in server.js, `Location:./server.js`
 
 - 2.4 Create new model for User, `Location:./models/User.js`
 - 2.5 Refactor register route
@@ -59,9 +59,9 @@ const connectDB = async () => {
 module.exports = connectDB;
 ```
 ### `Comments:`
-- 在这里取消了使用try catch的方法进行报错控制。
+- 在这里取消了使用try catch的方法进行报错控制，取消的报错控制放在server.js中。
 
-### `Step3: Change some code in server.js`
+### `Step3: Add DB code in server.js`
 #### `(*2.3)Location:./server.js`
 
 ```js
