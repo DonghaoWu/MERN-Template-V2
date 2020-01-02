@@ -269,7 +269,8 @@ const sendTokenResponse = (user, statusCode, res) => {
 #### - 把这个route middleware放在目标route中，作用就是解析token得到id，验证id的有效性，有效就放行到下一个中间件，没效就报错。
 
 ```diff
-+ 在这里需要指出一个点是，为什么在protect中把找到的user信息直接附在req上？ 因为这个主要的作用在于后续middleware的身份验证或者其他验证，而不是用来显示资料。
++ 在这里需要指出一个点是，为什么在protect中把找到的user信息直接附在req上？ 
++ 因为这个主要的作用在于后续middleware的身份验证或者其他验证，而不是用来显示资料。
 ```
 
 #### A. Create a middleware method
