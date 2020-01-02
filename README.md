@@ -5,10 +5,10 @@
 ### Final view(deployed): [https://safe-oasis-55973.herokuapp.com/](https://safe-oasis-55973.herokuapp.com/)
 
 <p align="center">
-<img src="./assets/59-4.png" width=85%>
+<img src="./assets/59-2.png" width=85%>
 </p>
 <p align="center">
-<img src="./assets/59-3.png" width=85%>
+<img src="./assets/59.png" width=85%>
 </p>
 
 ### `Check Dependencies`
