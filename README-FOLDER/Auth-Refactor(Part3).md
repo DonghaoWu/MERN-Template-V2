@@ -469,7 +469,7 @@ router.get('/someRoute', protect, authorize, someFunction);
 - 这个说明中改动的文件比较多，改动的代码也多，不能成为一个很好的说明，在这里暂时列出本说明中做出改变的文件，希望能起帮助。
 
 1. `./models/User.js`(*3.1) - add schema, methods, hooks
-2. `./config/config.env`(*3.2) -- add 1 new variable
+2. `./config/config.env`(*3.2) -- add 1 new variable.(JWT_COOKIE_EXPIRE)
 3. `./server.js`(*3.3) -- import cookie-parser
 4. `./controllers/auth.js`(*3.4) -- add getMe route middleware
 5. `./middleware/auth.js`(*3.6) -- create 2 middlewares
