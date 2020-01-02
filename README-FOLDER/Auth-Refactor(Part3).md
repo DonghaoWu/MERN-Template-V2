@@ -266,7 +266,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
 ### `Step5: Create Auth security Middleware (protect) and route middleware (getMe).`
 
-#### - 把这个route middleware放在目标route中，作用就是解析token得到id，验证id的有效性，有效就放行到下一个中间件，没效就报错。
+#### - `把这个route middleware放在目标route中，作用就是解析token得到id，验证id的有效性，有效就把user信息放到‘req.user’中，然后放行到下一个中间件，没效就报错。`
 
 ```diff
 + 在这里需要指出一个点是，为什么在protect中把找到的user信息直接附在req上？ 
@@ -414,7 +414,7 @@ module.exports = router;
 
 - 写middleware必须注意两点，第一点是经常需要改变req的内容，第二点是必须有`next()`.
 - 在这个设计流程中，经过`protect`中间件的route都会在`req`中取得user全部的信息，而protect中间件的主要作用是在解析token，然后寻找对应的user，如果有user就改变req的内容，如果没有就报错。
-- 这个部分很重要，主要练习如何创造和使用route middleware，同时熟悉protect middleware是怎样运作的。
+- 这个部分很重要，主要练习如何创造和使用route middleware，`同时熟悉protect middleware是怎样运作的。`
 
 ### `Step6: Create a Role Authorization security Middleware (authorize).`
 #### `(*3.6) Location:./middleware/auth.js`
