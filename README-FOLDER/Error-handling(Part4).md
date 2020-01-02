@@ -21,7 +21,7 @@
 
 ### Designing path:
 1. 做这个error handling middleware的目的在于更好的控制和分析错误，同时把错误信息整理成我们定制的格式以`json`的形式回传到客户端。
-2. 在这里实际上是要先写一个定制error类，放在错误控制的中间件，中间件放在server.js代码中route之后，用来捕捉所有API request过程中抛出的错误。
+2. 在这里要先写一个定制error类，放在错误控制的中间件，中间件放在server.js代码中route之后，用来捕捉所有API request过程中抛出的错误。
 3. 中间件的设置，主要是用来处理4大类错误信息，第一类是特定错误，第二类为可归类错误，第三类为未定义错误，第四类为其他错误（即服务器错误）。其中第三类的定义需要后面再定义；
 4. 看以下代码
 ```js
@@ -73,7 +73,7 @@
 - 4.2 Create a custom error middleware , `Location:./middleware/error.js`
 - 4.3 Add errorHandler middleware to server, `Location:./server.js`
 
-- 4.4 Add error creators in route middlewares.`Location:./middlesware/auth.js`
+- 4.4 Add error creators in route middlewares (protect & authorize).`Location:./middlesware/auth.js`
 - 4.5 Add error creators in route methods.`Location:./controllers/auth.js`
 
 ### `Step1: Create a custom error class`
@@ -200,7 +200,7 @@ process.on('unhandledRejection', (err, promise) => {
 ```
 
 ### `Comments:`
-- 注意中间件的位置，必须在route之后：
+- 注意中间件的位置，必须在route之后，这样就可以处理在前面route中产生的error都可以经过不断的next后在这个middleware中接住：
 ```js
 /*
 Routes here!!
@@ -233,7 +233,7 @@ exports.protect = async (req, res, next) => {
 
   // Make sure token exists
   if (!token) {
-    return next(new ErrorResponse('Not authorize to access this route 1', 401));
+    return next(new ErrorResponse('Not authorize to access this route (no token)', 401));
   }
 
   try {
@@ -242,7 +242,7 @@ exports.protect = async (req, res, next) => {
     next(); //route middleware
 
   } catch (err) {
-    return next(new ErrorResponse('Not authorize to access this route 2', 401)); // Catch error and stop.
+    return next(new ErrorResponse('Not authorize to access this route (invalid token)', 401)); // Catch error and stop.
   }
 }
 
@@ -327,13 +327,13 @@ exports.login = async (req, res, next) => {
         //Check for user
         const user = await User.findOne({ email }).select('+password');
         if (!user) {
-            return next(new ErrorResponse('Invalid credentials 1', 401));
+            return next(new ErrorResponse('Invalid credentials (invalid email)', 401));
         }
 
         //Check if password matches (model method)
         const isMatch = await user.matchPassword(password);
         if (!isMatch) {
-            return next(new ErrorResponse('Invalid credentials 2', 401));
+            return next(new ErrorResponse('Invalid credentials (invalid password)', 401));
         }
         //Create token
         sendTokenResponse(user, 200, res);
@@ -363,6 +363,7 @@ exports.getMe = async (req, res, next) => {
 ### `Comments:`
 
 - 这里写的是route 的error creator，跟milldeware中最大的不同是这里还需要包含第二类错误的代码。
+- route middleware一般都只处理第一类错误（特定已知错误）。
 - 这里的第一类错误都是特指自定义的已知错误，如
 ```js
         if (!isMatch) {
