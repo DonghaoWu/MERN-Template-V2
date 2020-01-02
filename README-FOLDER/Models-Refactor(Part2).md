@@ -224,6 +224,8 @@ module.exports = router;
 
 #### `(*2.7)Location:./controllers/auth.js`(注意这里把function拆开来跟V1不一样，相当于把function写成了Route Middleware，而所有的middleware都是有3参数的：req，res，next)。
 
+#### 为什么没有用到next？ 因为后面会有一个集中处理的Error handling middleware。
+
 ```js
 const User = require('../models/User');
 
