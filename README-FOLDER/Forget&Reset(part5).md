@@ -30,7 +30,7 @@
 ### `Brief Contents & codes position.`
 - 5.1 Create route middleware(forgotPassword), `Location:./controllers/auth.js`
 - 5.2 Create a new Mongo middleware in User model, `Location:./models/User.js`
-- 5.3 Add the new middleware in route to build an api, `Location:./apis/auth`
+- 5.3 Add the new endpoint middleware in route to build an api, `Location:./apis/auth`
 -------------------------
 - 5.4 Install nodemailer, create a account in mailtrap and set up some variable.`Location:./config/config.env`
 - 5.5 Add a new method in utils.`Location:./utils/sendEmail.js`
@@ -194,7 +194,7 @@ UserSchema.pre('save', async function (next) {
 
 - 第一步是引进一个built-in的crypto，然后在第二步中使用。
 - 第二步的意思是创造一个model middleware，通过crypto把resetPasswordToken和resetPasswordExpire赋值。
-- 第三步是更改model的hook，因为之前的设定是读取user时是不读取password的（相关代码如下），在这种情况下是无法按照原代码进行保存用户的，在这里使用一个if判定，如果password没有发现更改就跳过加密password的代码直接保存修改过的用户信息。
+- 第三步是更改model的hook，因为之前的设定是读取user时是不读取password的（相关代码如下），在这种情况下是无法按照原代码进行保存用户的，在这里使用一个if判定，如果password没有发现更改就跳过加密password的代码，直接保存用户除password外信息。
 ```js
     password: {
         type: String,
@@ -228,11 +228,11 @@ module.exports = router;
 ```
 
 ### `Comments:`
-- 到目前为止，我们实现了一个新api，当我们设定header：constent-type，value：applic/json后，在raw body提供email后，发出post request就可以发动这个api。
+- 到目前为止，我们实现了一个新api，当我们设定header：constent-type，value：application/json后，在raw body提供email后，发出post request就可以发动这个api。
 ```js
 router.post('/forgotpassword', forgotPassword);
 ```
-- 成功之后得到对应用户在db中的信息有两个地方被修改`resetPasswordToken和resetPasswordExpire`。
+- 如果成功，就会得到对应用户在db中的信息有两个地方被修改`resetPasswordToken和resetPasswordExpire`。
 
 ### `Step4: Add error creators in middlewares.`
 #### `(*4.4)Location:./middleware/auth.js`
