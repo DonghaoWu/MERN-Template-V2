@@ -29,8 +29,8 @@
 
 ### `Brief Contents & codes position.`
 - 5.1 Create route middleware(forgotPassword), `Location:./controllers/auth.js`
-- 5.2 Create some Mongo middleware in User model, `Location:./models/User.js`
-- 5.3 Add the new middleware in route to build a api, `Location:./apis/auth`
+- 5.2 Create a new Mongo middleware in User model, `Location:./models/User.js`
+- 5.3 Add the new middleware in route to build an api, `Location:./apis/auth`
 -------------------------
 - 5.4 Install nodemailer, create a account in mailtrap and set up some variable.`Location:./config/config.env`
 - 5.5 Add a new method in utils.`Location:./utils/sendEmail.js`
@@ -74,7 +74,7 @@ exports.forgotPassword = async (req, res, next) => {
 ### `Comments:`
 - 这里用到了 getResetPasswordToken()，在step2中设定。
 
-### `Step2: Create some Mongo middleware in User model`
+### `Step2: Create a new Mongo middleware in User model`
 #### `(*5.1)Location:./models/User.js`
 
 ```js
@@ -200,7 +200,7 @@ UserSchema.pre('save', async function (next) {
         type: String,
         required: [true, 'Please add a password'],
         minlength: 6,
-        select: false,//正常不读取
+        select: false,//正常情况不读取
     },
 ```
 - 在这里，对middleware进行一个小结，目前做过的有dependency middleware（morgan，cookie等），有route middleware（其中有validate middleware，endpoint middleware，error handling middleware），还有现在在做的Mongo model middleware一共三大类。
