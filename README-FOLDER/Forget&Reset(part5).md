@@ -26,19 +26,16 @@
 ### Designing path:
 1. 在这里需要设计两个api，一个是forgotPassword API，另外一个是resetPassword API。
 2. 设计思路，第一步在forgot middleware中生成一个reset token，第二步是整合reset token放在一个新的url中，而这个url是一个reset middleware的格式，第三部是依据url上的token在db中寻找并重置password。
-```js
-// code here！
-```
 
 ### `Brief Contents & codes position.`
 - 5.1 Create route middleware(forgotPassword), `Location:./controllers/auth.js`
 - 5.2 Create some Mongo middleware in User model, `Location:./models/User.js`
 - 5.3 Add the new middleware in route to build a api, `Location:./apis/auth`
-
+-------------------------
 - 5.4 Install nodemailer, create a account in mailtrap and set up some variable.`Location:./config/config.env`
 - 5.5 Add a new method in utils.`Location:./utils/sendEmail.js`
 - 5.6 Add the new method in `forgotPassword` route middleware.`Location:./controllers/auth.js`
-
+--------------------------
 - 5.7 Create route middleware(resetPassword), `Location:./controllers/auth.js`
 - 5.8 Add the new middleware in route to build a api, `Location:./apis/auth`
 
