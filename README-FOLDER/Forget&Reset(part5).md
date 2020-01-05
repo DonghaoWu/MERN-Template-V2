@@ -25,7 +25,7 @@
 
 ### Designing path:
 1. 在这里需要设计两个api，一个是forgotPassword API，另外一个是resetPassword API。
-2. 设计思路，第一步在forgotPassword middleware中生成一个resetToken，另外还有生成两个user自身的变量，第二步是整合reset token放在一个新的url中，而这个url是一个route endpoint middleware的格式，第三部是依据url上的token在db中寻找并重置password。
+2. 设计思路，第一步在forgotPassword API中生成一个resetToken，另外还有生成两个user自身的变量，第二步是整合resetToken放在一个新的url中，而这个url是一个resetPassword API的格式，第三部是依据url上的token在db中寻找并重置password。
 
 ### `Brief Contents & codes position.`
 - 5.1 Create route middleware(forgotPassword), `Location:./controllers/auth.js`
