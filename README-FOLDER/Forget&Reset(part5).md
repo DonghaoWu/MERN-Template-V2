@@ -32,7 +32,7 @@
 - 5.2 Create a new Mongo middleware in User model, `Location:./models/User.js`
 - 5.3 Add the new endpoint middleware in route to build an api, `Location:./apis/auth`
 -------------------------
-- 5.4 Install nodemailer, create a account in mailtrap and set up some variable.`Location:./config/config.env`
+- 5.4 Install nodemailer, create an account in mailtrap and set up some variable.`Location:./config/config.env`
 - 5.5 Add a new method in utils.`Location:./utils/sendEmail.js`
 - 5.6 Add the new method in `forgotPassword` route middleware.`Location:./controllers/auth.js`
 --------------------------
@@ -228,64 +228,49 @@ module.exports = router;
 ```
 
 ### `Comments:`
-- 到目前为止，我们实现了一个新api，当我们设定header：content-type，value：application/json后，在raw body提供email后，发出post request就可以发动这个api。
+- 到目前为止，我们实现了一个新api，当我们设定header：content-type，value：application/json，在raw body提供email后，发出post request就可以发动这个api。
 ```js
 router.post('/forgotpassword', forgotPassword);
 ```
 - 如果成功，就会得到对应用户在db中的信息有两个地方被修改`resetPasswordToken和resetPasswordExpire`。
 
-### `Step4: Add error creators in middlewares.`
-#### `(*4.4)Location:./middleware/auth.js`
+### `Step4: Install nodemailer, create an account in mailtrap and set up some variable.`
+
+```bash
+$ npm i nodemailer
+```
+
+#### Create a mailtrap account.
+<p align="center">
+<img src="../assets/222.png" width=90%>
+</p>
+
+<p align="center">
+<img src="../assets/223.png" width=90%>
+</p>
+
+#### `(*5.2)Location:./config/config.env`
 
 ```js
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-const ErrorResponse = require('../utils/errorResponse');
+NODE_ENV=development
+PORT=5000
 
+MONGO_URI=mongodb+srv://Donghao:I0pxzLf3HYQGAQKf@cluster0-0cgmm.mongodb.net/test?retryWrites=true&w=majority
 
-//Check if the token is valid
-exports.protect = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
+JWT_SECRET=abcdefg
+JWT_EXPIRE=300000
 
-  // else if (req.cookies.token) {
-  //   token = req.cookies.token
-  // }
+JWT_COOKIE_EXPIRE = 300
 
-  // Make sure token exists
-  if (!token) {
-    return next(new ErrorResponse('Not authorize to access this route (no token)', 401));
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
-    next(); //route middleware
-
-  } catch (err) {
-    return next(new ErrorResponse('Not authorize to access this route (invalid token)', 401)); // Catch error and stop.
-  }
-}
-
-//Grand access to specific roles
-exports.authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(new ErrorResponse(`User role ${req.user.role} is not authorized to access this route`, 403));
-    }
-    next();
-  }
-}
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_EMAIL=a812c4c23bc13a
+SMTP_PASSWORD=94c96708e44e07
+FROM_EMAIL=noreplay@myTemplate.io
+FROM_NAME=MERN_TEMPLATE_V2
 ```
 ### `Comments:`
-
-- 在middleware中增加的error creator一般都是第一类错误，即特定已知错误.
-- 写第一类错误的代码要注意格式，除了`new`关键词以外，还要注意因为本身是middleware而要添加的`next`关键词，当然还有打断流程关键词`return`,如：
-```js
-    return next(new ErrorResponse('Not authorize to access this route 1', 401));
-```
+- 
 
 ### `Step5: Add error creators in route methods.`
 #### `(*4.5)Location:./controllers/auth.js`
