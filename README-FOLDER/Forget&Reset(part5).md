@@ -232,7 +232,7 @@ module.exports = router;
 ```js
 router.post('/forgotpassword', forgotPassword);
 ```
-- 如果成功，就会得到对应用户在db中的信息有两个地方被修改`resetPasswordToken和resetPasswordExpire`。
+- 如果成功，就会得到对应用户在db中的信息有两个地方被修改`resetPasswordToken`和`resetPasswordExpire`。
 
 ### `Step4: Install nodemailer, create an account in mailtrap and set up some variable.`
 
@@ -272,120 +272,43 @@ FROM_EMAIL=noreplay@myTemplate.io
 FROM_NAME=MERN_TEMPLATE_V2
 ```
 ### `Comments:`
-- 
+- 在这里简单说一下mailtrap的作用，主要是一个虚拟的邮件服务器，在这里设定好发送方，然后发送邮件，目标的邮件是不会到其真实的地址而是回到了maitrap的inbox，以此来测试发送邮件的功能。
 
-### `Step5: Add error creators in route methods.`
-#### `(*4.5)Location:./controllers/auth.js`
+### `Step5: Add a new method in utils.`
+#### `(*5.3)Location:./utils/sendEmail.js`
 
 ```js
-const User = require('../models/User');
-const ErrorResponse = require('../utils/errorResponse');
+const nodemailer = require('nodemailer');
 
-const sendTokenResponse = (user, statusCode, res) => {
-    const token = user.getSignedJwtToken();
-    const options = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-        httpOnly: true
-    }
+const sendEmail = async (options) => {
+    const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        auth: {
+            user: process.env.SMTP_EMAIL,
+            pass: process.env.SMTP_PASSWORD,
+        }
+    });
 
-    //For production
-    if (process.env.NODE_ENV === 'production') {
-        // for https
-        options.secure = true;
-    }
+    // send mail with defined transport object
+    let message = {
+        from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+        to: options.email,
+        subject: options.subject,
+        text: options.message,
+    };
 
-    res
-        .status(statusCode)
-        .cookie('token', token, options)
-        .json({
-            success: true,
-            token: token
-        });
+    const info = await transporter.sendMail(message);
+
+    console.log('Message sent: %s', info.messageId);
 }
 
-// @desc       Register user
-// @route      Post /api/v2/auth/register
-// @access     Public
-exports.register = async (req, res, next) => {
-    try {
-        const { name, email, password, role } = req.body;
-
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role
-        });
-        sendTokenResponse(user, 200, res);
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc       Login user
-// @route      Post /api/v2/auth/register
-// @access     Public
-exports.login = async (req, res, next) => {
-    try {
-        // Validate email & password
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return next(new ErrorResponse('Please provide email and password', 400));
-        }
-
-        //Check for user
-        const user = await User.findOne({ email }).select('+password');
-        if (!user) {
-            return next(new ErrorResponse('Invalid credentials (invalid email)', 401));
-        }
-
-        //Check if password matches (model method)
-        const isMatch = await user.matchPassword(password);
-        if (!isMatch) {
-            return next(new ErrorResponse('Invalid credentials (invalid password)', 401));
-        }
-        //Create token
-        sendTokenResponse(user, 200, res);
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc       Get current logged in user
-// @route      Post /api/v2/auth/me
-// @access     Private
-exports.getMe = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.user.id);
-        res.status(200).json({
-            success: true,
-            data: user
-        });
-
-    } catch (err) {
-        next(err);
-    }
-};
+module.exports = sendEmail;
 ```
 
 ### `Comments:`
 
-- 这里写的是route 的error creator，跟milldeware中最大的不同是这里还需要包含第二类错误的代码。
-- route middleware一般都只处理第一类错误（特定已知错误）。
-- 这里的第一类错误都是特指自定义的已知错误，如
-```js
-        if (!isMatch) {
-            return next(new ErrorResponse('Invalid credentials 2', 401));
-        }
-```
-- 这里的第二类错误都在catch中处理，也就是来自`await`过程的错误，如
-```js
-catch (err) {
-        next(err);
-    }
-```
+- 这里写的函数sendMail的主要功能是获得一个参数option（一个object），然后用obj里面的value构造一条格式message，同时设置好transporter的各项参数，最后把option以message的格式发送出去。`也就是说option就是要发送的内容。`
 
 ### Step6 : TEST
 
