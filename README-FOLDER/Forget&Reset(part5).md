@@ -72,6 +72,10 @@ exports.forgotPassword = async (req, res, next) => {
 
 ### `Comments:`
 - 这里用到了 getResetPasswordToken()，在step2中设定。
+- 在这里虽然跳过了validation，`但是跳不过无password的要求`，所以要在step2中对pre save hook进行修改。(如何跳过requie项目也能更新info的主题)。
+```js
+await user.save({ validateBeforeSave: false });
+```
 
 ### `Step2: Create a new Mongo middleware in User model`
 #### `(*5.1)Location:./models/User.js`
@@ -193,7 +197,7 @@ UserSchema.pre('save', async function (next) {
 
 - 第一步是引进一个built-in的crypto，然后在第二步中使用。
 - 第二步的意思是创造一个model middleware，通过crypto把resetPasswordToken和resetPasswordExpire赋值。
-- 第三步是更改model的hook，因为之前的设定是读取user时是不读取password的（相关代码如下），在这种情况下是无法按照原代码进行保存用户的，在这里使用一个if判定，如果password没有发现更改就跳过加密password的代码，直接保存用户除password外信息。
+- 第三步是更改model的hook，因为之前的设定是读取user时是不读取password的（相关代码如下），在这种情况下password为空，是无法按照原代码进行保存用户的，在这里使用一个if判定，如果password没有发现更改就跳过加密password的代码，直接保存用户除password外信息。
 ```js
     password: {
         type: String,
