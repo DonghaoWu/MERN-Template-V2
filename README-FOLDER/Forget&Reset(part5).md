@@ -30,14 +30,14 @@
 ### `Brief Contents & codes position.`
 - 5.1 Create route middleware(forgotPassword), `Location:./controllers/auth.js`
 - 5.2 Create a new Mongo middleware in User model, `Location:./models/User.js`
-- 5.3 Add the new endpoint middleware in route to build an api, `Location:./apis/auth`
+- 5.3 Add the new route endpoint middleware in route to build forgot password api, `Location:./apis/auth`
 -------------------------
-- 5.4 Install nodemailer, create an account in mailtrap and set up some variable.`Location:./config/config.env`
+- 5.4 Install nodemailer, create an account in mailtrap and set up some global variables.`Location:./config/config.env`
 - 5.5 Add a new method in utils.`Location:./utils/sendEmail.js`
-- 5.6 Add the new method in `forgotPassword` route middleware.`Location:./controllers/auth.js`
+- 5.6 Add the new method in `forgotPassword` route endpoint middleware.`Location:./controllers/auth.js`
 --------------------------
-- 5.7 Create route middleware(resetPassword), `Location:./controllers/auth.js`
-- 5.8 Add the new middleware in route to build a api, `Location:./apis/auth`
+- 5.7 Create route endpoint middleware(resetPassword), `Location:./controllers/auth.js`
+- 5.8 Add the new route endpoint middleware in route to build reset password api, `Location:./apis/auth`
 
 ### `Step1: Create a new route middleware(forgotPassword)`
 #### `Location:./controllers/auth.js`
