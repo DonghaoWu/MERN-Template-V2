@@ -122,7 +122,7 @@ exports.forgotPassword = async (req, res, next) => {
         } catch (err) {
             console.log(err);
             user.resetPasswordToken = undefined;
-            user.getResetPasswordToken = undefined;
+            user.resetPasswordExpire = undefined;
 
             await user.save({ validateBeforeSave: false });
             return next(new ErrorResponse('Email could not be sent', 500))
@@ -160,7 +160,7 @@ exports.resetPassword = async (req, res, next) => {
         // Set new password
         user.password = req.body.password;
         user.resetPasswordToken = undefined;
-        user.getResetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
         await user.save();
 
         sendTokenResponse(user, 200, res);

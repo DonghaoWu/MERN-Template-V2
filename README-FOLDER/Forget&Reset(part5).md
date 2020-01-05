@@ -350,7 +350,7 @@ exports.forgotPassword = async (req, res, next) => {
         } catch (err) {
             console.log(err);
             user.resetPasswordToken = undefined;
-            user.getResetPasswordToken = undefined;
+            user.resetPasswordExpire = undefined;
 
             await user.save({ validateBeforeSave: false });
             return next(new ErrorResponse('Email could not be sent', 500))
@@ -504,7 +504,7 @@ exports.forgotPassword = async (req, res, next) => {
         } catch (err) {
             console.log(err);
             user.resetPasswordToken = undefined;
-            user.getResetPasswordToken = undefined;
+            user.resetPasswordExpire = undefined;
 
             await user.save({ validateBeforeSave: false });
             return next(new ErrorResponse('Email could not be sent', 500))
@@ -542,7 +542,7 @@ exports.resetPassword = async (req, res, next) => {
         // Set new password
         user.password = req.body.password;
         user.resetPasswordToken = undefined;
-        user.getResetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
         await user.save();
 
         sendTokenResponse(user, 200, res);
@@ -602,32 +602,38 @@ module.exports = router;
 
 ### Step9 : TEST
 
-- Forgot password, enter an not existed email.
+- Forgot password, enter a not existed email.
 <p align="center">
-<img src="../assets/224.png" width=90%>
+<img src="../assets/224.png" width=85%>
+</p>
+<p align="center">
+<img src="../assets/225.png" width=85%>
 </p>
 
-- Forgot password, enter an not existed email.
+- Forgot password, enter an registered email.
 <p align="center">
-<img src="../assets/225.png" width=90%>
+<img src="../assets/226.png" width=85%>
 </p>
 
 - Get a email in mailtrap.
 <p align="center">
-<img src="../assets/226.png" width=90%>
+<img src="../assets/227.png" width=85%>
 </p>
 
 - Copy the url, ask for reset api put request, with a new password in body(which length is 3).
 <p align="center">
-<img src="../assets/227.png" width=90%>
+<img src="../assets/224.png" width=85%>
+</p>
+<p align="center">
+<img src="../assets/228.png" width=85%>
 </p>
 
 - The new password length is 6
 <p align="center">
-<img src="../assets/228.png" width=90%>
+<img src="../assets/229.png" width=85%>
 </p>
 
 - The user is now login.
 <p align="center">
-<img src="../assets/229.png" width=90%>
+<img src="../assets/230.png" width=85%>
 </p>
