@@ -188,7 +188,7 @@ UserSchema.methods.getResetPasswordToken = function () {
 // Encrypt password using bcrypt. mongo middleware
 UserSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
-        next();
+        next();//高阶操作
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -309,6 +309,9 @@ const sendEmail = async (options) => {
 module.exports = sendEmail;
 ```
 
+### `Comments:`
+- sendMail的作用是设置好transporter的参数，和message的格式，然后根据参数option的具体情况定制message作为邮件内容通过transporter发送出去。
+
 ```diff
 + 这个sendEmail是一个async函数，调用的时候方式不一样。需要用try catch。
 ```
@@ -368,7 +371,8 @@ exports.forgotPassword = async (req, res, next) => {
 
 ```diff
 + 在这里要说一下调动一个定义好的async函数sendEmail，调动的方式是要另外增加一个try catch block的。
-+ 在这个catch中，语句的意思是如果发送不了email，就把生成的`resetPasswordToken`和`resetPasswordExpire`清掉，让客户从头调动一次这个api。
++ 在这个catch中，语句的意思是如果发送不了email，
++ 就把生成的`resetPasswordToken`和`resetPasswordExpire`清掉，让客户从头调动一次这个api。
 ```
 
 - 到这里为止，我们已经实现了`调动一个API ---> 生成token ---> 把token整合成一个URL ---> 把url作为邮件信息的一部分发送出去`的过程。
