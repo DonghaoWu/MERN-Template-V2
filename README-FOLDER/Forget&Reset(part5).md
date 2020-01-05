@@ -25,7 +25,7 @@
 
 ### Designing path:
 1. 在这里需要设计两个api，一个是forgotPassword API，另外一个是resetPassword API。
-2. 设计思路，第一步在forgot middleware中生成一个reset token，第二步是整合reset token放在一个新的url中，而这个url是一个reset middleware的格式，第三部是依据url上的token在db中寻找并重置password。
+2. 设计思路，第一步在forgotPassword middleware中生成一个resetToken，另外还有生成两个user自身的变量，第二步是整合reset token放在一个新的url中，而这个url是一个route endpoint middleware的格式，第三部是依据url上的token在db中寻找并重置password。
 
 ### `Brief Contents & codes position.`
 - 5.1 Create route middleware(forgotPassword), `Location:./controllers/auth.js`
@@ -38,7 +38,6 @@
 --------------------------
 - 5.7 Create route middleware(resetPassword), `Location:./controllers/auth.js`
 - 5.8 Add the new middleware in route to build a api, `Location:./apis/auth`
-
 
 ### `Step1: Create a new route middleware(forgotPassword)`
 #### `Location:./controllers/auth.js`
@@ -306,9 +305,270 @@ const sendEmail = async (options) => {
 module.exports = sendEmail;
 ```
 
+```diff
++ 这个sendEmail是一个async函数，调用的时候方式不一样。需要用try catch。
+```
+
+### `Step6: Add the new method in ‘forgotPassword’ route middleware.`
+#### `Location:./controllers/auth.js`
+
+```js
+// @desc       Forgot password
+// @route      Post /api/v2/auth/forgotpassword
+// @access     Public
+exports.forgotPassword = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return next(new ErrorResponse(`There is no user with that email`, 404))
+        }
+
+        // Get reset token
+        const resetToken = user.getResetPasswordToken();
+
+        await user.save({ validateBeforeSave: false });
+
+        // Create reset URL
+        const resetUrl = `${req.protocol}://${req.get('host')}/api/v2/auth/resetpassword/${resetToken}`;
+
+        const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
+
+        try {
+            await sendEmail({
+                email: user.email,
+                subject: 'Password reset token',
+                message: message
+            })
+        } catch (err) {
+            console.log(err);
+            user.resetPasswordToken = undefined;
+            user.getResetPasswordToken = undefined;
+
+            await user.save({ validateBeforeSave: false });
+            return next(new ErrorResponse('Email could not be sent', 500))
+        }
+
+        res.status(200).json({
+            success: true,
+            data: `Email sent`,
+        })
+    } catch (err) {
+        next(err);
+    }
+};
+```
 ### `Comments:`
 
-- 这里写的函数sendMail的主要功能是获得一个参数option（一个object），然后用obj里面的value构造一条格式message，同时设置好transporter的各项参数，最后把option以message的格式发送出去。`也就是说option就是要发送的内容。`
+- 接着上面保存好user后，就把生成的resetToken作为信息的一部分加入进定制的信息格式中，然后再对整体信息进行打包作为参数调动函数sendEmail。
+
+```diff
++ 在这里要说一下调动一个定义好的async函数sendEmail，调动的方式是要另外增加一个try catch block的。
++ 在这个catch中，语句的意思是如果发送不了email，就把生成的`resetPasswordToken`和`resetPasswordExpire`清掉，让客户从头调动一次这个api。
+```
+
+- 到这里为止，我们已经实现了`调动一个API ---> 生成token ---> 把token整合成一个URL ---> 把url作为邮件信息的一部分发送出去`的过程。
+
+- 5.8 Add the new middleware in route to build a api, `Location:./apis/auth`
+
+### `Step7: Create route middleware(resetPassword).`
+#### `(*5.4)Location:./controllers/auth.js`
+
+```js
+const User = require('../models/User');
+const ErrorResponse = require('../utils/errorResponse');
+const sendEmail = require('../utils/sendEmail');
+const crypto = require('crypto');
+
+const sendTokenResponse = (user, statusCode, res) => {
+    const token = user.getSignedJwtToken();
+    const options = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+        httpOnly: true
+    }
+
+    //For production
+    if (process.env.NODE_ENV === 'production') {
+        // for https
+        options.secure = true;
+    }
+
+    res
+        .status(statusCode)
+        .cookie('token', token, options)
+        .json({
+            success: true,
+            token: token
+        });
+}
+
+// @desc       Register user
+// @route      Post /api/v2/auth/register
+// @access     Public
+exports.register = async (req, res, next) => {
+    try {
+        const { name, email, password, role } = req.body;
+
+        const user = await User.create({
+            name,
+            email,
+            password,
+            role
+        });
+        sendTokenResponse(user, 200, res);
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Login user
+// @route      Post /api/v2/auth/register
+// @access     Public
+exports.login = async (req, res, next) => {
+    try {
+        // Validate email & password
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return next(new ErrorResponse('Please provide email and password', 400));
+        }
+
+        //Check for user
+        const user = await User.findOne({ email }).select('+password');
+        if (!user) {
+            return next(new ErrorResponse('Invalid credentials (email)', 401));
+        }
+
+        //Check if password matches (model method)
+        const isMatch = await user.matchPassword(password);
+        if (!isMatch) {
+            return next(new ErrorResponse('Invalid credentials (password)', 401));
+        }
+        //Create token
+        sendTokenResponse(user, 200, res);
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Get current logged in user
+// @route      Post /api/v2/auth/me
+// @access     Private
+exports.getMe = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Forgot password
+// @route      Post /api/v2/auth/forgotpassword
+// @access     Public
+exports.forgotPassword = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return next(new ErrorResponse(`There is no user with that email`, 404))
+        }
+
+        // Get reset token
+        const resetToken = user.getResetPasswordToken();
+
+        await user.save({ validateBeforeSave: false });
+
+        // Create reset URL
+        const resetUrl = `${req.protocol}://${req.get('host')}/api/v2/auth/resetpassword/${resetToken}`;
+
+        const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
+
+        try {
+            await sendEmail({
+                email: user.email,
+                subject: 'Password reset token',
+                message: message
+            })
+        } catch (err) {
+            console.log(err);
+            user.resetPasswordToken = undefined;
+            user.getResetPasswordToken = undefined;
+
+            await user.save({ validateBeforeSave: false });
+            return next(new ErrorResponse('Email could not be sent', 500))
+        }
+
+        res.status(200).json({
+            success: true,
+            data: `Email sent`,
+        })
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Reset password
+// @route      Put /api/v2/auth/resetpassword/:resettoken
+// @access     Private
+exports.resetPassword = async (req, res, next) => {
+    try {
+        const resetPasswordToken = crypto
+            .createHash('sha256')
+            .update(req.params.resettoken)
+            .digest('hex');
+
+        const user = await User.findOne({
+            resetPasswordToken: resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return next(new ErrorResponse('Invalid reset token', 400));
+        }
+
+        // Set new password
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.getResetPasswordToken = undefined;
+        await user.save();
+
+        sendTokenResponse(user, 200, res);
+
+    } catch (err) {
+        next(err);
+    }
+};
+```
+
+### `Comments:`
+
+- 到这里要说明一个在上一步就需要设定好的地方，就是发送的包含resetToken的url就应该是reset password api要用到的url。
+- 在这个route endpoint middleware中把resetToken取出来，然后转码成resetPasswordToken，最后查找对比是否存在，同时判定是否过期。
+
+- 在这里要提出一个问题，为什么要在Mongo中对resetToken进行转码变成resetPasswordToken储存起来，然后发送的是resetToken，最后拿到resetToken还要将它第二次转码成resetPasswordToken？直接生成一个resetToken直接寻找不转码不可以吗？
+
+#### `估计答案应该是关于安全性的考虑，两次的转码都需要统一的密钥？（持续好奇中）。`
+
+- 添加新的password到user，记得关闭删除reset相关信息，储存最新的信息（`联想之前step2修改的pre hook操作`），最后引用`sendTokenResponse`本地生成token，把token放在cookie，最后把token以json方式返回。
+
+- 要注意forgotPassword跟resetPassword中一条代码的小小区别
+```js
+//forgotPassword
+await user.save({ validateBeforeSave: false });
+//resetPassword
+await user.save();//这时候更改了密码是需要validation的。
+```
+
+- 整个resetPassword endpoint middleware的作用就是处理一个PUT request，raw body是新的password，然后对应url是在forgotPassword中生成的url，resetPassword接到这两个东西之后进行转码、寻找、对比和更改，最终实现修改password的过程。
+
+- 至于为什么是修改而不是直接告知用户原密码，个人觉得直接告诉原密码有泄漏风险，不安全。
 
 ### Step6 : TEST
 
