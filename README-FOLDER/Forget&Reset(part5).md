@@ -39,7 +39,7 @@
 - 5.7 Create route endpoint middleware(resetPassword), `Location:./controllers/auth.js`
 - 5.8 Add the new route endpoint middleware in route to build reset password api, `Location:./apis/auth`
 
-### `Step1: Create a new route middleware(forgotPassword)`
+### `Step1: Create route middleware(forgotPassword)`
 #### `Location:./controllers/auth.js`
 
 ```js
@@ -208,7 +208,7 @@ UserSchema.pre('save', async function (next) {
 ```
 - 在这里，对middleware进行一个小结，目前做过的有dependency middleware（morgan，cookie等），有route middleware（其中有validate middleware，endpoint middleware，error handling middleware），还有现在在做的Mongo model middleware一共三大类。
 
-### `Step3: Add the new endpoint middleware in route to build a api.`
+### `Step3: Add the new route endpoint middleware in route to build forgot password api.`
 #### `Location:./apis/auth.js`
 
 ```js
@@ -316,7 +316,7 @@ module.exports = sendEmail;
 + 这个sendEmail是一个async函数，调用的时候方式不一样。需要用try catch。
 ```
 
-### `Step6: Add the new method in ‘forgotPassword’ route middleware.`
+### `Step6: Add the new method in forgotPassword route endpoint middleware.`
 #### `Location:./controllers/auth.js`
 
 ```js
@@ -377,7 +377,7 @@ exports.forgotPassword = async (req, res, next) => {
 
 - 到这里为止，我们已经实现了`调动一个API ---> 生成token ---> 把token整合成一个URL ---> 把url作为邮件信息的一部分发送出去`的过程。
 
-### `Step7: Create route middleware(resetPassword).`
+### `Step7: Create route endpoint middleware(resetPassword).`
 #### `(*5.4)Location:./controllers/auth.js`
 
 ```js
@@ -569,56 +569,65 @@ exports.resetPassword = async (req, res, next) => {
 //forgotPassword
 await user.save({ validateBeforeSave: false });
 //resetPassword
-await user.save();//这时候更改了密码是需要validation的。
+await user.save();//这时候更改了密码是需要validation的，同时新的password也会在pre save hook中执行加密程序。
 ```
 
 - 整个resetPassword endpoint middleware的作用就是处理一个PUT request，raw body是新的password，然后对应url是在forgotPassword中生成的url，resetPassword接到这两个东西之后进行转码、寻找、对比和更改，最终实现修改password的过程。
 
 - 至于为什么是修改而不是直接告知用户原密码，个人觉得直接告诉原密码有泄漏风险，不安全。
 
-### Step6 : TEST
+### `Step8: Add the new route endpoint middleware in route to build reset password api.`
+#### `(*5.5)Location:./apis/auth.js`
 
-- Register without some required field.
+```js
+const router = require('express').Router();
+const {
+    register,
+    login,
+    getMe,
+    forgotPassword,
+    resetPassword
+} = require('../controllers/auth');
+
+const { protect } = require('../middleware/auth')
+
+router.post('/register', register);
+router.post('/login', login);
+router.get('/me', protect, getMe);
+router.post('/forgotpassword', forgotPassword);
+router.put('/resetpassword/:resettoken', resetPassword);
+
+module.exports = router;
+```
+
+### Step9 : TEST
+
+- Forgot password, enter an not existed email.
 <p align="center">
-<img src="../assets/213.png" width=90%>
+<img src="../assets/224.png" width=90%>
 </p>
 
-- Register with short password.
+- Forgot password, enter an not existed email.
 <p align="center">
-<img src="../assets/214.png" width=90%>
+<img src="../assets/225.png" width=90%>
 </p>
 
-- Register with wrong format email.
+- Get a email in mailtrap.
 <p align="center">
-<img src="../assets/215.png" width=90%>
+<img src="../assets/226.png" width=90%>
 </p>
 
-- Register with duplicate email.
+- Copy the url, ask for reset api put request, with a new password in body(which length is 3).
 <p align="center">
-<img src="../assets/216.png" width=90%>
+<img src="../assets/227.png" width=90%>
 </p>
 
-- Login without some required field.
+- The new password length is 6
 <p align="center">
-<img src="../assets/217.png" width=90%>
+<img src="../assets/228.png" width=90%>
 </p>
 
-- Login with email which is not existed in database.
+- The user is now login.
 <p align="center">
-<img src="../assets/218.png" width=90%>
-</p>
-
-- Login with a invalid password.
-<p align="center">
-<img src="../assets/219.png" width=90%>
-</p>
-
-- Send a request without token.
-<p align="center">
-<img src="../assets/220.png" width=90%>
-</p>
-
-- Send request with invalid token.
-<p align="center">
-<img src="../assets/221.png" width=90%>
+<img src="../assets/229.png" width=90%>
 </p>
