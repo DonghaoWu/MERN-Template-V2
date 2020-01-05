@@ -244,7 +244,7 @@ $ npm i nodemailer
 <p align="center">
 <img src="../assets/222.png" width=90%>
 </p>
-
+----------------------------------------
 <p align="center">
 <img src="../assets/223.png" width=90%>
 </p>
@@ -265,7 +265,7 @@ JWT_COOKIE_EXPIRE = 300
 SMTP_HOST=smtp.mailtrap.io
 SMTP_PORT=2525
 SMTP_EMAIL=a812c4c23bc13a
-SMTP_PASSWORD=94c96708e44e07
+SMTP_PASSWORD = 94c96708e44e07
 FROM_EMAIL=noreplay@myTemplate.io
 FROM_NAME=MERN_TEMPLATE_V2
 ```
