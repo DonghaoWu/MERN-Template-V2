@@ -372,12 +372,10 @@ exports.forgotPassword = async (req, res, next) => {
 ```diff
 + 在这里要说一下调动一个定义好的async函数sendEmail，调动的方式是要另外增加一个try catch block的。
 + 在这个catch中，语句的意思是如果发送不了email，
-+ 就把生成的`resetPasswordToken`和`resetPasswordExpire`清掉，让客户从头调动一次这个api。
+- 就把生成的`resetPasswordToken`和`resetPasswordExpire`清掉，让客户从头调动一次这个api。
 ```
 
 - 到这里为止，我们已经实现了`调动一个API ---> 生成token ---> 把token整合成一个URL ---> 把url作为邮件信息的一部分发送出去`的过程。
-
-- 5.8 Add the new middleware in route to build a api, `Location:./apis/auth`
 
 ### `Step7: Create route middleware(resetPassword).`
 #### `(*5.4)Location:./controllers/auth.js`
