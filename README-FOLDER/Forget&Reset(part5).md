@@ -618,7 +618,7 @@ module.exports = router;
 <img src="../assets/226.png" width=90%>
 </p>
 
-- Get a email in mailtrap.
+- Get an email in mailtrap.
 <p align="center">
 <img src="../assets/227.png" width=90%>
 </p>
