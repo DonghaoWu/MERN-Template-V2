@@ -228,7 +228,7 @@ module.exports = router;
 ```
 
 ### `Comments:`
-- 到目前为止，我们实现了一个新api，当我们设定header：constent-type，value：application/json后，在raw body提供email后，发出post request就可以发动这个api。
+- 到目前为止，我们实现了一个新api，当我们设定header：content-type，value：application/json后，在raw body提供email后，发出post request就可以发动这个api。
 ```js
 router.post('/forgotpassword', forgotPassword);
 ```
