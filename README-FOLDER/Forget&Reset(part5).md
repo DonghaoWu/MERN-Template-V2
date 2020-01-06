@@ -574,7 +574,7 @@ await user.save({ validateBeforeSave: false });
 //resetPassword
 await user.save();//这时候更改了密码是需要validation的，同时新的password也会在pre save hook中执行加密程序。
 
-//如果需要修改部分required信息，则需要修改pre save的内容，如果修改非required内容，则要通过另外的middleware进行操作。
+//如果需要修改部分required信息，则需要修改pre save的内容，如果修改非required内容，则要通过另外的API进行操作。
 ```
 
 - 整个resetPassword endpoint middleware的作用就是处理一个PUT request，raw body是新的password，然后对应url是在forgotPassword中生成的url，resetPassword接到这两个东西之后进行转码、寻找、对比和更改，最终实现修改password的过程。
