@@ -646,5 +646,5 @@ module.exports = router;
 
 - Send a get me API GET request. The user is now login.
 <p align="center">
-<img src="../assets/230.png" width=85%>
+<img src="../assets/230.png" width=90%>
 </p>
