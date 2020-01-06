@@ -25,10 +25,11 @@
 
 ### Designing path:
 1. 在这里需要设计两个api，一个是forgotPassword API，另外一个是resetPassword API。
-2. 设计思路，第一步在forgotPassword API中生成一个resetToken，另外还有生成两个user自身的变量，第二步是整合resetToken放在一个新的url中，而这个url是一个resetPassword API的格式，第三部是依据url上的token在db中寻找并重置password。
+2. 设计思路，第一步在forgotPassword API中生成一个resetToken，另外还有生成两个user自身的变量，第二步是整合resetToken放在一个新的url中，再把url打包在email中发到指定邮件，而这个url是一个resetPassword API的格式，第三部是依据url上的token在db中寻找并重置password。
+3. 这两个API都是public的，不需要中间件辅助验证。
 
 ### `Brief Contents & codes position.`
-- 5.1 Create route middleware(forgotPassword), `Location:./controllers/auth.js`
+- 5.1 Create route endpoint middleware(forgotPassword), `Location:./controllers/auth.js`
 - 5.2 Create a new Mongo middleware in User model, `Location:./models/User.js`
 - 5.3 Add the new route endpoint middleware in route to build forgot password api, `Location:./apis/auth`
 -------------------------
@@ -39,7 +40,7 @@
 - 5.7 Create route endpoint middleware(resetPassword), `Location:./controllers/auth.js`
 - 5.8 Add the new route endpoint middleware in route to build reset password api, `Location:./apis/auth`
 
-### `Step1: Create route middleware(forgotPassword)`
+### `Step1: Create route endpoint middleware(forgotPassword)`
 #### `Location:./controllers/auth.js`
 
 ```js
@@ -72,7 +73,7 @@ exports.forgotPassword = async (req, res, next) => {
 
 ### `Comments:`
 - 这里用到了 getResetPasswordToken()，在step2中设定。
-- 在这里虽然跳过了validation，`但是跳不过无password的要求`，所以要在step2中对pre save hook进行修改。(如何跳过requie项目也能更新info的主题)。
+- 在下面代码虽然跳过了validation，`但是跳不过password的required`，所以要在step2中对pre save hook进行修改。(这是关于跳过requied要求也能更新info的主题)。
 ```js
 await user.save({ validateBeforeSave: false });
 ```
@@ -195,9 +196,9 @@ UserSchema.pre('save', async function (next) {
 });
 ```
 
-- 第一步是引进一个built-in的crypto，然后在第二步中使用。
-- 第二步的意思是创造一个model middleware，通过crypto把resetPasswordToken和resetPasswordExpire赋值。
-- 第三步是更改model的hook，因为之前的设定是读取user时是不读取password的（相关代码如下），在这种情况下password为空，是无法按照原代码进行保存用户的，在这里使用一个if判定，如果password没有发现更改就跳过加密password的代码，直接保存用户除password外信息。
+- 第一步是引进一个built-in的crypto，用来转码restToken。
+- 第二步的意思是创造一个model middleware，通过crypto把resetPasswordToken和resetPasswordExpire赋值，并在第三步把他们添加到DB用户信息中。
+- 第三步是更改model的hook，因为之前的设定是读取user时是不包括password的（相关代码如下），在这种情况下password为空，是无法按照原代码进行保存用户信息的，在这里使用一个if判定，如果password没有发现更改就跳过加密password的代码，直接保存用户除password外信息。
 ```js
     password: {
         type: String,
@@ -235,9 +236,9 @@ module.exports = router;
 ```js
 router.post('/forgotpassword', forgotPassword);
 ```
-- 如果成功，就会得到对应用户在db中的信息有两个地方被修改`resetPasswordToken`和`resetPasswordExpire`。
+- 如果成功，就会得到对应用户在db中的信息有两个地方被改变了值`resetPasswordToken`和`resetPasswordExpire`。
 
-### `Step4: Install nodemailer, create an account in mailtrap and set up some variable.`
+### `Step4: Install nodemailer, create an account in mailtrap and set up some global variables.`
 
 ```bash
 $ npm i nodemailer
@@ -310,7 +311,7 @@ module.exports = sendEmail;
 ```
 
 ### `Comments:`
-- sendMail的作用是设置好transporter的参数，和message的格式，然后根据参数option的具体情况定制message作为邮件内容通过transporter发送出去。
+- sendMail的作用是设置好transporter的参数，和message的格式，然后根据参数option的具体情况定制message，最后作为邮件内容通过transporter发送出去。
 
 ```diff
 + 这个sendEmail是一个async函数，调用的时候方式不一样。需要用try catch。
@@ -367,7 +368,9 @@ exports.forgotPassword = async (req, res, next) => {
 ```
 ### `Comments:`
 
-- 接着上面保存好user后，就把生成的resetToken作为信息的一部分加入进定制的信息格式中，然后再对整体信息进行打包作为参数调动函数sendEmail。
+- 接着上面代码保存好user后，就把生成的resetToken作为信息的一部分加入进定制的信息格式中，然后再对整体信息进行打包作为参数调动函数sendEmail。
+
+- 这段代码值得注意的点是在catch中使用了`await`关键词。
 
 ```diff
 + 在这里要说一下调动一个定义好的async函数sendEmail，调动的方式是要另外增加一个try catch block的。
@@ -558,7 +561,7 @@ exports.resetPassword = async (req, res, next) => {
 - 到这里要说明一个在上一步就需要设定好的地方，就是发送的包含resetToken的url就应该是reset password api要用到的url。
 - 在这个route endpoint middleware中把resetToken取出来，然后转码成resetPasswordToken，最后查找对比是否存在，同时判定是否过期。
 
-- 在这里要提出一个问题，为什么要在Mongo中对resetToken进行转码变成resetPasswordToken储存起来，然后发送的是resetToken，最后拿到resetToken还要将它第二次转码成resetPasswordToken？直接生成一个resetToken直接寻找不转码不可以吗？
+- 在这里要提出一个问题，为什么要在Mongo中对resetToken进行转码变成resetPasswordToken储存起来，然后发送的是resetToken，最后拿到resetToken还要将它第二次转码成resetPasswordToken，在经过这么一个过程之后才进行对比？直接生成一个resetToken直接寻找不转码不可以吗？
 
 #### `估计答案应该是关于安全性的考虑，两次的转码都需要统一的密钥？（持续好奇中）。`
 
@@ -570,6 +573,8 @@ exports.resetPassword = async (req, res, next) => {
 await user.save({ validateBeforeSave: false });
 //resetPassword
 await user.save();//这时候更改了密码是需要validation的，同时新的password也会在pre save hook中执行加密程序。
+
+//如果需要修改部分required信息，则需要修改pre save的内容，如果修改非required内容，则要通过另外的middleware进行操作。
 ```
 
 - 整个resetPassword endpoint middleware的作用就是处理一个PUT request，raw body是新的password，然后对应url是在forgotPassword中生成的url，resetPassword接到这两个东西之后进行转码、寻找、对比和更改，最终实现修改password的过程。
@@ -623,7 +628,7 @@ module.exports = router;
 <img src="../assets/227.png" width=90%>
 </p>
 
-- Copy the url, ask for reset api put request, with a new password in body(which length is 3).
+- Copy the url, send a reset api PUT request, with a new password in body(which length is 3), catch error.
 <p align="center">
 <img src="../assets/224.png" width=90%>
 </p>
@@ -634,12 +639,12 @@ module.exports = router;
 <img src="../assets/228.png" width=90%>
 </p>
 
-- The new password length is 6
+- The new password length is 6, success.
 <p align="center">
 <img src="../assets/229.png" width=90%>
 </p>
 
-- The user is now login.
+- Send a get me API GET request. The user is now login.
 <p align="center">
 <img src="../assets/230.png" width=85%>
 </p>
