@@ -1,6 +1,6 @@
 # MERN-Template-V2(part 5)
 
-## `Section: Backend`(Add password API)。
+## `Section: Backend`(Rorgot and reset password API)。
 
 ### `Summary`: In this documentation, we add forget password api and reset password api. 
 
