@@ -27,6 +27,7 @@
 1. 在这里需要设计两个api，一个是forgotPassword API，另外一个是resetPassword API。
 2. 设计思路，第一步在forgotPassword API中生成一个resetToken，另外还有生成两个user自身的变量，第二步是整合resetToken放在一个新的url中，再把url打包在email中发到指定邮件，而这个url是一个resetPassword API的格式，第三部是依据url上的token在db中寻找并重置password。
 3. 这两个API都是public的，不需要中间件辅助验证。
+4. 总体思路就是forgetPassword API生成url，resetPassword API处理url中的resetToken并寻找对应用户。
 
 ### `Brief Contents & codes position.`
 - 5.1 Create route endpoint middleware(forgotPassword), `Location:./controllers/auth.js`
