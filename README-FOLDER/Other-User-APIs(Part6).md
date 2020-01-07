@@ -25,7 +25,7 @@
 1. 练习添加新的API。
 
 ### `Brief Contents & codes position.`
-- 6.1 Add update email and name route endpoint middleware, `Location:./controllers/auth.js`
+- 6.1 Add update details route endpoint middleware, `Location:./controllers/auth.js`
 - 6.2 Add update password route endpoint middleware, `Location:./controllers/auth.js`
 - 6.3 Add the two new route endpoint middlewares in route to two new apis, `Location:./apis/auth`
 
@@ -131,56 +131,65 @@ module.exports = router;
 ```
 
 ### `Comments:`
-- 要注意新增的两个route endpoint middleware都是Private的，换句话说都需要protect middleware去验证用户是否登陆或者cookie是否有效。
+- 要注意新增的两个route endpoint middleware都是Private的，换句话说都需要protect middleware去验证用户是否登陆或者cookies里面的token是否有效。
 
 ### Step4 : TEST
 
-- Forgot password, enter a not existed email.
+- Register a new user.
 <p align="center">
 <img src="../assets/231.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+-----------------------------------------
+
 <p align="center">
 <img src="../assets/232.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+
+
+- Configure the new api request in postman.
 <p align="center">
 <img src="../assets/233.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+-----------------------------------------
+
 <p align="center">
 <img src="../assets/234.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+- Update details with wrong format.
 <p align="center">
 <img src="../assets/235.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+- Update details with valid format.
 <p align="center">
 <img src="../assets/236.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+- Update successfully.
 <p align="center">
 <img src="../assets/237.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+- Login with the user.
 <p align="center">
 <img src="../assets/238.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+- Input the current password and new password.
 <p align="center">
 <img src="../assets/239.png" width=90%>
 </p>
 
-- Forgot password, enter a not existed email.
+- Login with old password.
+<p align="center">
+<img src="../assets/240.png" width=90%>
+</p>
+
+- Login with new password.
 <p align="center">
 <img src="../assets/240.png" width=90%>
 </p>
