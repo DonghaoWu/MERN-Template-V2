@@ -25,6 +25,9 @@
 - 3.1 Add a new User model method, `Location:./models/User.js`
 - 3.2 Add login route middleware, `Location:./controllers/auth.js`
 - 3.3 Bring login route middleware to route, `Location:./apis/auth.js`
+
+-------------------------------------------
+
 - 3.4 Create a helper function to generate token, store it in cookie, and return it(4 steps)
 - 3.5 Create Auth security Middleware (protect) and route middleware (getMe).
 - 3.6 Create a Role Authorization security Middleware (authorize).

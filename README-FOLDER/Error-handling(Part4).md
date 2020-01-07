@@ -73,6 +73,8 @@
 - 4.2 Create a custom error middleware , `Location:./middleware/error.js`
 - 4.3 Add errorHandler middleware to server, `Location:./server.js`
 
+-------------------------------------------
+
 - 4.4 Add error creators in route middlewares (protect & authorize).`Location:./middlesware/auth.js`
 - 4.5 Add error creators in route methods.`Location:./controllers/auth.js`
 

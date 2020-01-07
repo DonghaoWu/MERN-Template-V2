@@ -1,8 +1,8 @@
-# MERN-Template-V2(part 5)
+# MERN-Template-V2(part 6)
 
-## `Section: Backend`(Forgot and reset password API)。
+## `Section: Backend`(Update User APIs and Admin APIs)。
 
-### `Summary`: In this documentation, we add forget password api and reset password api. 
+### `Summary`: In this documentation, we add update user apis & admin apis. 
 
 ### `Check Dependencies`
 
@@ -24,22 +24,23 @@
 - nodemon (part1)
 
 ### Designing path:
-1. 在这里需要设计两个api，一个是forgotPassword API，另外一个是resetPassword API。
-2. 设计思路，第一步在forgotPassword API中生成一个resetToken，另外还有生成两个user自身的变量，第二步是整合resetToken放在一个新的url中，再把url打包在email中发到指定邮件，而这个url是一个resetPassword API的格式，第三部是依据url上的token在db中寻找并重置password。
-3. 这两个API都是public的，不需要中间件辅助验证。
-4. 总体思路就是forgetPassword API生成url，resetPassword API处理url中的resetToken并寻找对应用户。
+1. 练习添加新的API。
 
 ### `Brief Contents & codes position.`
-- 5.1 Create route endpoint middleware(forgotPassword), `Location:./controllers/auth.js`
-- 5.2 Create a new Mongo middleware in User model, `Location:./models/User.js`
-- 5.3 Add the new route endpoint middleware in route to build forgot password api, `Location:./apis/auth`
--------------------------
-- 5.4 Install nodemailer, create an account in mailtrap and set up some global variables.`Location:./config/config.env`
-- 5.5 Add a new method in utils.`Location:./utils/sendEmail.js`
-- 5.6 Add the new method in `forgotPassword` route endpoint middleware.`Location:./controllers/auth.js`
---------------------------
-- 5.7 Create route endpoint middleware(resetPassword), `Location:./controllers/auth.js`
-- 5.8 Add the new route endpoint middleware in route to build reset password api, `Location:./apis/auth`
+- 6.1 Add update email and name route endpoint middleware, `Location:./controllers/auth.js`
+- 6.2 Add update password route endpoint middleware, `Location:./controllers/auth.js`
+- 6.3 Add the two new route endpoint middlewares in route to two new apis, `Location:./apis/auth`
+
+-------------------------------------------
+
+- 6.4 Install nodemailer, create an account in mailtrap and set up some global variables.`Location:./config/config.env`
+- 6.5 Add a new method in utils.`Location:./utils/sendEmail.js`
+- 6.6 Add the new method in `forgotPassword` route endpoint middleware.`Location:./controllers/auth.js`
+
+-------------------------------------------
+
+- 6.7 Create route endpoint middleware(resetPassword), `Location:./controllers/auth.js`
+- 6.8 Add the new route endpoint middleware in route to build reset password api, `Location:./apis/auth`
 
 ### `Step1: Create route endpoint middleware(forgotPassword)`
 #### `Location:./controllers/auth.js`

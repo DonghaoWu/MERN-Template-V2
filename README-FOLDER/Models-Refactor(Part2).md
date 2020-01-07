@@ -25,6 +25,8 @@
 - 2.2 Change code in db configuration, `Location:./config/db.js`
 - 2.3 Add DB code in server.js, `Location:./server.js`
 
+-------------------------------------------
+
 - 2.4 Create new model for User, `Location:./models/User.js`
 - 2.5 Refactor register route
 
