@@ -169,3 +169,47 @@ exports.resetPassword = async (req, res, next) => {
         next(err);
     }
 };
+
+// @desc       Update user details
+// @route      PUT /api/v2/auth/updatedetails
+// @access     Private
+exports.updateDetails = async (req, res, next) => {
+    try {
+        const fielsToUpdate = {
+            name: req.body.name,
+            email: req.body.email,
+        }
+        const user = await User.findByIdAndUpdate(req.user.id, fielsToUpdate, {
+            new: true,
+            runValidators: true,
+        })
+
+        res.status(200).json({
+            success: true,
+            data: user
+        })
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Update user password
+// @route      PUT /api/v2/auth/updatepassword
+// @access     Private
+exports.updatePassword = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id).select('+password');
+        if (!(await user.matchPassword(req.body.currentPassword))) {
+            return next(new ErrorResponse('Password is incorrect', 401))
+        }
+
+        user.password = req.body.newPassword;
+        await user.save();
+
+        sendTokenResponse(user, 200, res)
+
+    } catch (err) {
+        next(err);
+    }
+};
