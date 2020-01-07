@@ -1,8 +1,8 @@
 # MERN-Template-V2(part 6)
 
-## `Section: Backend`(Update User APIs and Admin APIs)。
+## `Section: Backend`(Update User details and password APIs)。
 
-### `Summary`: In this documentation, we add update user apis & admin apis. 
+### `Summary`: In this documentation, we add update user apis. 
 
 ### `Check Dependencies`
 
@@ -28,17 +28,6 @@
 - 6.1 Add update details route endpoint middleware, `Location:./controllers/auth.js`
 - 6.2 Add update password route endpoint middleware, `Location:./controllers/auth.js`
 - 6.3 Add the two new route endpoint middlewares in route to two new apis, `Location:./apis/auth`
-
--------------------------------------------
-
-- 6.4 Install nodemailer, create an account in mailtrap and set up some global variables.`Location:./config/config.env`
-- 6.5 Add a new method in utils.`Location:./utils/sendEmail.js`
-- 6.6 Add the new method in `forgotPassword` route endpoint middleware.`Location:./controllers/auth.js`
-
--------------------------------------------
-
-- 6.7 Create route endpoint middleware(resetPassword), `Location:./controllers/auth.js`
-- 6.8 Add the new route endpoint middleware in route to build reset password api, `Location:./apis/auth`
 
 ### `Step1: Add update email and name route endpoint middleware`
 #### `Location:./controllers/auth.js`
@@ -191,5 +180,5 @@ module.exports = router;
 
 - Login with new password.
 <p align="center">
-<img src="../assets/240.png" width=90%>
+<img src="../assets/241.png" width=90%>
 </p>
