@@ -266,39 +266,38 @@ module.exports = router;
 
 ### Step5 : TEST
 
-- Register a new user.
+- Change the user role to 'admin' manually.
 <p align="center">
 <img src="../assets/242.png" width=90%>
 </p>
 
------------------------------------------
-
+- Login the admin user in Postman.
 <p align="center">
 <img src="../assets/243.png" width=90%>
 </p>
 
-- Configure the new api request in postman.
+- Make a request to get all user
 <p align="center">
 <img src="../assets/244.png" width=90%>
 </p>
 
------------------------------------------
+- Make a request to create a user.
 
 <p align="center">
 <img src="../assets/245.png" width=90%>
 </p>
 
-- Update details with wrong format.
+- Make a request to get a user by id.
 <p align="center">
 <img src="../assets/246.png" width=90%>
 </p>
 
-- Update details with valid format.
+- Update a user details by id.
 <p align="center">
 <img src="../assets/247.png" width=90%>
 </p>
 
-- Update successfully.
+- Delete a user by id.
 <p align="center">
 <img src="../assets/248.png" width=90%>
 </p>
