@@ -1,4 +1,4 @@
-# MERN-Template-V2(part 3)
+# MERN-Template-V2(Part 3)
 
 ## `Section: Backend`(Refactor backend Authentication route)。
 
@@ -56,7 +56,7 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'publisher'],
+        enum: ['user', 'publisher','admin'],
         default: 'user'
     },
     password: {

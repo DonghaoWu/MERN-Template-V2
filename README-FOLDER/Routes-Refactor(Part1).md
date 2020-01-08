@@ -1,4 +1,4 @@
-# MERN-Template-V2(part 1)
+# MERN-Template-V2(Part 1)
 
 ## `Section: Backend`(Refactor backend route)
 

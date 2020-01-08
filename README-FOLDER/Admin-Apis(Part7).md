@@ -1,4 +1,4 @@
-# MERN-Template-V2(Part 6)
+# MERN-Template-V2(Part 7)
 
 ## `Section: Backend`(Update User details and password APIs)。
 

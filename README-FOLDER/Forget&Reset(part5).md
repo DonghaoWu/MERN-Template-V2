@@ -1,4 +1,4 @@
-# MERN-Template-V2(part 5)
+# MERN-Template-V2(Part 5)
 
 ## `Section: Backend`(Forgot and reset password API)。
 
@@ -104,7 +104,7 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'publisher'],
+        enum: ['user', 'publisher','admin'],
         default: 'user'
     },
     password: {
