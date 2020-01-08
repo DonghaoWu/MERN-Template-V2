@@ -268,59 +268,37 @@ module.exports = router;
 
 - Register a new user.
 <p align="center">
-<img src="../assets/231.png" width=90%>
+<img src="../assets/242.png" width=90%>
 </p>
 
 -----------------------------------------
 
 <p align="center">
-<img src="../assets/232.png" width=90%>
+<img src="../assets/243.png" width=90%>
 </p>
-
-
 
 - Configure the new api request in postman.
 <p align="center">
-<img src="../assets/233.png" width=90%>
+<img src="../assets/244.png" width=90%>
 </p>
 
 -----------------------------------------
 
 <p align="center">
-<img src="../assets/234.png" width=90%>
+<img src="../assets/245.png" width=90%>
 </p>
 
 - Update details with wrong format.
 <p align="center">
-<img src="../assets/235.png" width=90%>
+<img src="../assets/246.png" width=90%>
 </p>
 
 - Update details with valid format.
 <p align="center">
-<img src="../assets/236.png" width=90%>
+<img src="../assets/247.png" width=90%>
 </p>
 
 - Update successfully.
 <p align="center">
-<img src="../assets/237.png" width=90%>
-</p>
-
-- Login with the user.
-<p align="center">
-<img src="../assets/238.png" width=90%>
-</p>
-
-- Input the current password and new password.
-<p align="center">
-<img src="../assets/239.png" width=90%>
-</p>
-
-- Login with old password.
-<p align="center">
-<img src="../assets/240.png" width=90%>
-</p>
-
-- Login with new password.
-<p align="center">
-<img src="../assets/241.png" width=90%>
+<img src="../assets/248.png" width=90%>
 </p>
