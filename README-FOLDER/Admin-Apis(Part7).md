@@ -25,323 +25,246 @@
 1. 练习添加新的API。
 
 ### `Brief Contents & codes position.`
-- 6.1 Add update details route endpoint middleware, `Location:./controllers/auth.js`
-- 6.2 Add update password route endpoint middleware, `Location:./controllers/auth.js`
-- 6.3 Add the two new route endpoint middlewares in route to two new apis, `Location:./apis/auth`
+- 6.1 Add `advancedResults` middleware, `Location:./middleware/advancedResults.js`
+- 6.2 Add new route endpoint middlewares, `Location:./controllers/users.js`
 
-### `Step1: Add update email and name route endpoint middleware`
-#### `Location:./controllers/auth.js`
+- 6.3 Add a brand new route, `Location:./apis/users.js`
+- 6.4 Connect the new route, `Location:./apis/index.js`
+
+### `Step1: Add advancedResults middleware`
+#### `Location:./middleware/advancedResults.js`
 
 ```js
-// @desc       Update user details
-// @route      PUT /api/v2/auth/updatedetails
-// @access     Private
-exports.updateDetails = async (req, res, next) => {
-    try {
-        const fielsToUpdate = {
-            name: req.body.name,
-            email: req.body.email,
+const advancedResults = (model, populate) => async (req, res, next) => {
+    let query;
+
+    //Copy query
+    const reqQuery = { ...req.query };
+
+    //Fields to exclude
+    const removeFields = ['select', 'sort', 'page', 'limit'];
+
+    //Loop over removeFields and delete them from reqQuery
+    removeFields.forEach(param => delete reqQuery[param]);
+
+    //Create query string
+    let queryStr = JSON.stringify(reqQuery);
+
+    //Create operators ($gt, $gte, etc)
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+
+    // Finding resource
+    query = model.find(JSON.parse(queryStr));//???
+
+    //Select Fields
+    if (req.query.select) {
+        const fields = req.query.select.split(',').join(' ');
+        query = query.select(fields);
+    }
+
+    //Sort
+    if (req.query.sort) {
+        const sortBy = req.query.sort.split(',').join(' ');
+        query = query.sort(sortBy)
+    }
+    else {
+        query = query.sort('-createdAt');
+    }
+
+    //Pagination
+    const page = parseInt(req, query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 25;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await model.countDocuments();
+
+    query = query.skip(startIndex).limit(limit);
+
+    if (populate) {
+        query = query.populate(populate);
+    }
+
+    // Executing query
+    const results = await query;
+
+    // Pagination result
+    const pagination = {}
+    if (endIndex < total) {
+        pagination.next = {
+            page: page + 1,
+            limit: limit,
         }
-        const user = await User.findByIdAndUpdate(req.user.id, fielsToUpdate, {
-            new: true,
-            runValidators: true,
-        })
+    }
+
+    if (startIndex > 0) {
+        pagination.prev = {
+            page: page - 1,
+            limit: limit,
+        }
+    }
+
+    res.advancedResults = {
+        success: true,
+        count: results.length,
+        pagination: pagination,
+        data: results
+    }
+    next();
+};
+
+module.exports = advancedResults;
+```
+
+### `Comments:`
+- 这个middleware是一个难点，主要是它整合了处理query的功能，后面需要好好分析。
+
+### `Step2: Add new route endpoint middlewares`
+#### `(*7.2)Location:./controllers/users.js`
+
+```js
+const User = require('../models/User');
+const ErrorResponse = require('../utils/errorResponse');
+
+// @desc       Get all users
+// @route      Get /api/v2/users
+// @access     Private/Admin
+exports.getUsers = async (req, res, next) => {
+    try {
+        res.status(200).json(res.advancedResults);
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Get single user
+// @route      Get /api/v2/users/:id
+// @access     Private/Admin
+exports.getUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
 
         res.status(200).json({
             success: true,
-            data: user
+            data: user,
         })
-
     } catch (err) {
         next(err);
     }
 };
-```
 
-### `Comments:`
-- 注意这里使用到的是部分修改user info的概念，跟第五部分修改resetPasswordToken和resetPasswordExpire，是相似的，但使用的工具是不一样的，这里需要多对比分辨。
-- `这里也是常用的更新部分info的方法。`
-
-### `Step2: Add update password route endpoint middleware`
-#### `Location:./controllers/auth.js`
-
-```js
-// @desc       Update user password
-// @route      PUT /api/v2/auth/updatepassword
-// @access     Private
-exports.updatePassword = async (req, res, next) => {
+// @desc       Create user
+// @route      Post /api/v2/users
+// @access     Private/Admin
+exports.createUser = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id).select('+password');
-        if (!(await user.matchPassword(req.body.currentPassword))) {
-            return next(new ErrorResponse('Password is incorrect', 401))
-        }
+        const user = await User.create(req.body);
+        user.password = undefined;
 
-        user.password = req.body.newPassword;
-        await user.save();
-
-        sendTokenResponse(user, 200, res)
-
+        res.status(201).json({
+            success: true,
+            data: user,
+        })
     } catch (err) {
         next(err);
     }
 };
+
+// @desc       Update user
+// @route      Put /api/v2/users/:id
+// @access     Private/Admin
+exports.updateUser = async (req, res, next) => {
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true,
+        });
+
+        res.status(200).json({
+            success: true,
+            data: user,
+        })
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc       Delete user
+// @route      DELETE /api/v2/users/:id
+// @access     Private/Admin
+exports.deleteUser = async (req, res, next) => {
+    try {
+        await User.findByIdAndDelete(req.params.id)
+
+        res.status(200).json({
+            success: true,
+            data: 'User Deleted.'
+        })
+    } catch (err) {
+        next(err);
+    }
+};
+
+
 ```
 
 ### `Comments:`
-- 注意这里使用读取用户时使用到`select('password')`, 然后经过对比原密码成功后直接保存，最后调用`sendTokenResponse`来保持登陆状态。
-- 这里小结一下在本app里面用到了很多修改user info并保存在DB的不同方法，后期可以多总结。
+- 这里一共生成了5个endpoint middlewares.
 
-### `Step3: Add the new route endpoint middleware in route to build new api.`
-#### `(*6.1)Location:./apis/auth.js`
+### `Step3: Add a brand new route.`
+#### `(*7.3)Location:./apis/users.js`
 
 ```js
 const router = require('express').Router();
 const {
-    register,
-    login,
-    getMe,
-    forgotPassword,
-    resetPassword,
-    updateDetails,
-    updatePassword
-} = require('../controllers/auth');
+  getUser,
+  getUsers,
+  updateUser,
+  createUser,
+  deleteUser
+} = require('../controllers/users');
 
-const { protect } = require('../middleware/auth')
+const User = require('../models/User');
 
-router.post('/register', register);
-router.post('/login', login);
-router.get('/me', protect, getMe);
-router.put('/updatedetails', protect, updateDetails);
-router.put('/updatepassword', protect, updatePassword);
-router.post('/forgotpassword', forgotPassword);
-router.put('/resetpassword/:resettoken', resetPassword);
+const { protect, authorize } = require('../middleware/auth');
+const advancedResults = require('../middleware/advancedResults');
+
+router.use(protect);
+router.use(authorize('admin'));
+
+router
+  .route('/')
+  .get(advancedResults(User), getUsers)
+  .post(createUser);
+
+router
+  .route('/:id')
+  .get(getUser)
+  .put(updateUser)
+  .delete(deleteUser)
 
 module.exports = router;
 ```
 
 ### `Comments:`
-- 要注意新增的两个route endpoint middleware都是Private的，换句话说都需要protect middleware去验证用户是否登陆或者cookies里面的token是否有效。
+- 注意这里middleware的使用位置。
 
-#### `(*6.2)Location:./controllers/auth.js`
+### `Step4: Connect the new route.`
+#### `(*7.4)Location:./apis/index.js`
+
 ```js
-const User = require('../models/User');
-const ErrorResponse = require('../utils/errorResponse');
-const sendEmail = require('../utils/sendEmail');
-const crypto = require('crypto');
+const router = require('express').Router();
 
-const sendTokenResponse = (user, statusCode, res) => {
-    const token = user.getSignedJwtToken();
-    const options = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-        httpOnly: true
-    }
+router.use('/auth', require('./auth'));
+router.use('/users', require('./users'));
 
-    //For production
-    if (process.env.NODE_ENV === 'production') {
-        // for https
-        options.secure = true;
-    }
-
-    res
-        .status(statusCode)
-        .cookie('token', token, options)
-        .json({
-            success: true,
-            token: token
-        });
-}
-
-// @desc       Register user
-// @route      Post /api/v2/auth/register
-// @access     Public
-exports.register = async (req, res, next) => {
-    try {
-        const { name, email, password, role } = req.body;
-
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role
-        });
-        sendTokenResponse(user, 200, res);
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc       Login user
-// @route      Post /api/v2/auth/register
-// @access     Public
-exports.login = async (req, res, next) => {
-    try {
-        // Validate email & password
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return next(new ErrorResponse('Please provide email and password', 400));
-        }
-
-        //Check for user
-        const user = await User.findOne({ email }).select('+password');
-        if (!user) {
-            return next(new ErrorResponse('Invalid credentials (email)', 401));
-        }
-
-        //Check if password matches (model method)
-        const isMatch = await user.matchPassword(password);
-        if (!isMatch) {
-            return next(new ErrorResponse('Invalid credentials (password)', 401));
-        }
-        //Create token
-        sendTokenResponse(user, 200, res);
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc       Get current logged in user
-// @route      Post /api/v2/auth/me
-// @access     Private
-exports.getMe = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.user.id);
-        res.status(200).json({
-            success: true,
-            data: user
-        });
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-
-// @desc       Forgot password
-// @route      Post /api/v2/auth/forgotpassword
-// @access     Public
-exports.forgotPassword = async (req, res, next) => {
-    try {
-        const user = await User.findOne({ email: req.body.email });
-
-        if (!user) {
-            return next(new ErrorResponse(`There is no user with that email`, 404))
-        }
-
-        // Get reset token
-        const resetToken = user.getResetPasswordToken();
-
-        await user.save({ validateBeforeSave: false });
-
-        // Create reset URL
-        const resetUrl = `${req.protocol}://${req.get('host')}/api/v2/auth/resetpassword/${resetToken}`;
-
-        const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
-
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Password reset token',
-                message: message
-            })
-        } catch (err) {
-            console.log(err);
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpire = undefined;
-
-            await user.save({ validateBeforeSave: false });
-            return next(new ErrorResponse('Email could not be sent', 500))
-        }
-
-        res.status(200).json({
-            success: true,
-            data: `Email sent`,
-        })
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc       Reset password
-// @route      Put /api/v2/auth/resetpassword/:resettoken
-// @access     Private
-exports.resetPassword = async (req, res, next) => {
-    try {
-        const resetPasswordToken = crypto
-            .createHash('sha256')
-            .update(req.params.resettoken)
-            .digest('hex');
-
-        const user = await User.findOne({
-            resetPasswordToken: resetPasswordToken,
-            resetPasswordExpire: { $gt: Date.now() }
-        });
-
-        if (!user) {
-            return next(new ErrorResponse('Invalid reset token', 400));
-        }
-
-        // Set new password
-        user.password = req.body.password;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
-        await user.save();
-
-        sendTokenResponse(user, 200, res);
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc       Update user details
-// @route      PUT /api/v2/auth/updatedetails
-// @access     Private
-exports.updateDetails = async (req, res, next) => {
-    try {
-        const fielsToUpdate = {
-            name: req.body.name,
-            email: req.body.email,
-        }
-        const user = await User.findByIdAndUpdate(req.user.id, fielsToUpdate, {
-            new: true,
-            runValidators: true,
-        })
-
-        res.status(200).json({
-            success: true,
-            data: user
-        })
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc       Update user password
-// @route      PUT /api/v2/auth/updatepassword
-// @access     Private
-exports.updatePassword = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.user.id).select('+password');
-        if (!(await user.matchPassword(req.body.currentPassword))) {
-            return next(new ErrorResponse('Password is incorrect', 401))
-        }
-
-        user.password = req.body.newPassword;
-        await user.save();
-
-        sendTokenResponse(user, 200, res)
-
-    } catch (err) {
-        next(err);
-    }
-};
+module.exports = router;
 ```
 
-### Step4 : TEST
+### `Comments:`
+- 总的来说这就是添加新的API的流程，主要是开发middleware，然后生成route，最后连接成为一个API。难点在于开发不同的middleware和不同的逻辑件。
+
+
+### Step5 : TEST
 
 - Register a new user.
 <p align="center">
