@@ -1,8 +1,8 @@
 # MERN-Template-V2(Part 7)
 
-## `Section: Backend`(Update User details and password APIs)。
+## `Section: Backend`(Admin APIs)。
 
-### `Summary`: In this documentation, we add update user apis. 
+### `Summary`: In this documentation, we add Admin user apis. 
 
 ### `Check Dependencies`
 

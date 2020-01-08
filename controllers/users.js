@@ -69,11 +69,11 @@ exports.updateUser = async (req, res, next) => {
 // @access     Private/Admin
 exports.deleteUser = async (req, res, next) => {
     try {
-        await User.findByIdAndDelete(req.params.id)
+        const user = await User.findByIdAndDelete(req.params.id)
 
         res.status(200).json({
             success: true,
-            data: 'User Deleted.'
+            data: `User id ${user.id} Deleted.`
         })
     } catch (err) {
         next(err);
