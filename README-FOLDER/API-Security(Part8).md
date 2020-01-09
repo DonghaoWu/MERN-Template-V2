@@ -30,18 +30,15 @@
 (Dev-dependencies)
 - nodemon (part1)
 
-### Designing path:
-1. 练习添加新的API。
-
 ### `Brief Contents & codes position.`
-- 8.1 Add logout route middleware, `Location:./controllers/auth.js`
-- 8.2 Add the mew middleware to route, `Location:./apis/auth.js`
+- 8.1 Add logout route endpoint middleware, `Location:./controllers/auth.js`
+- 8.2 Add the new middleware to route, `Location:./apis/auth.js`
 - 8.3 Set token from cookie, `Location:./middleware/auth.js`
 
 ---------------------------------------------
-- 8.4 Add pre-defined middlewares, `Location:./server.js`
+- 8.4 Add pre-defined packages, `Location:./server.js`
 
-### `Step1: Add logout route middleware`
+### `Step1: Add logout route endpoint middleware.`
 #### `Location:./controllers/auth.js`
 
 ```js
@@ -70,7 +67,7 @@ exports.logout = async (req, res, next) => {
 - 这个只当token在cookie时使用，之前都是在postman中使用Bearer token，token都自动存在postman中。
 - 疑问，logout是private吗，因为没有经过protect middleware.
 
-### `Step2: Add the mew middleware to route.`
+### `Step2: Add the new middleware to route.`
 #### `(*8.1)Location:./apis/auth.js`
 
 ```js
@@ -162,9 +159,9 @@ exports.authorize = (...roles) => {
     token = req.cookies.token
   }
 ```
-- 上面这一段的意思是如果没有对postman的token进行设定，就检测cookie上面有没有token。
+- 上面这一段的意思是首先检测postman的token，然后检测cookie上面的token。
 
-### `Step4: Add pre-defined middlewares.`
+### `Step4: Add pre-defined packages.`
 #### Install dependencies
 ```bash
 $ npm i express-mongo-sanitize
@@ -300,7 +297,9 @@ app.use(cors());
 <p align="center">
 <img src="../assets/251.png" width=90%>
 </p>
+
 ----------------------------------------
+
 <p align="center">
 <img src="../assets/252.png" width=90%>
 </p>
