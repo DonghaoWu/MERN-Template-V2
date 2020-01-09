@@ -105,7 +105,6 @@ exports.getMe = async (req, res, next) => {
             success: true,
             data: user
         });
-
     } catch (err) {
         next(err);
     }
