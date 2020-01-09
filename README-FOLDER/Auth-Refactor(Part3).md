@@ -285,13 +285,14 @@ const jwt = require('jsonwebtoken');
 
 exports.protect = async (req, res, next) => {
   let token;
+  // Set token from Bearer token in header
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
-
-  // else if (req.cookies.token) {
-  //   token = req.cookies.token
-  // }
+  // Set token from cookie
+  else if (req.cookies.token) {
+    token = req.cookies.token
+  }
 
   // Make sure token exists
   // if (!token) {
@@ -429,13 +430,14 @@ const jwt = require('jsonwebtoken');
 //Check if the token is valid
 exports.protect = async (req, res, next) => {
   let token;
+  // Set token from Bearer token in header
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
-
-  // else if (req.cookies.token) {
-  //   token = req.cookies.token
-  // }
+  // Set token from cookie
+  else if (req.cookies.token) {
+    token = req.cookies.token
+  }
 
   // Make sure token exists
   // if (!token) {

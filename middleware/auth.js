@@ -6,17 +6,19 @@ const ErrorResponse = require('../utils/errorResponse');
 //Check if the token is valid
 exports.protect = async (req, res, next) => {
   let token;
+
+  // Set token from Bearer token in header
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
-
-  // else if (req.cookies.token) {
-  //   token = req.cookies.token
-  // }
+  // Set token from cookie
+  else if (req.cookies.token) {
+    token = req.cookies.token
+  }
 
   // Make sure token exists
   if (!token) {
-    return next(new ErrorResponse('Not authorize to access this route 1', 401));
+    return next(new ErrorResponse('Not authorized to access this route (no token)', 401));
   }
 
   try {
@@ -25,7 +27,7 @@ exports.protect = async (req, res, next) => {
     next(); // pre route middleware
 
   } catch (err) {
-    return next(new ErrorResponse('Not authorize to access this route 2', 401)); // Catch error and stop.
+    return next(new ErrorResponse('Not authorized to access this route (invalid token)', 401)); // Catch error and stop.
   }
 }
 

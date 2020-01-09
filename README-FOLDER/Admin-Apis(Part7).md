@@ -25,11 +25,11 @@
 1. 练习添加新的API。
 
 ### `Brief Contents & codes position.`
-- 6.1 Add `advancedResults` middleware, `Location:./middleware/advancedResults.js`
-- 6.2 Add new route endpoint middlewares, `Location:./controllers/users.js`
+- 7.1 Add `advancedResults` middleware, `Location:./middleware/advancedResults.js`
+- 7.2 Add new route endpoint middlewares, `Location:./controllers/users.js`
 
-- 6.3 Add a brand new route, `Location:./apis/users.js`
-- 6.4 Connect the new route, `Location:./apis/index.js`
+- 7.3 Add a brand new route, `Location:./apis/users.js`
+- 7.4 Connect the new route, `Location:./apis/index.js`
 
 ### `Step1: Add advancedResults middleware`
 #### `Location:./middleware/advancedResults.js`
